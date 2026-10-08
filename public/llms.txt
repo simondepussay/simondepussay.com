@@ -1,0 +1,44 @@
+# Simon Depussay (シモン デプセ)
+
+> Franco-Swiss iOS & web developer based in Tokyo, Japan. Builds iPhone apps in Swift and cloud backends on Microsoft Azure. Native French speaker, JLPT N2 (Japanese), TOEIC 925 (English). Currently studying at HAL Tokyo (2025–2027) and open to internships and jobs.
+
+Contact: depussay.simon@icloud.com
+Website: https://simondepussay.com (Japanese and English)
+The website also has an AI assistant that answers questions about Simon.
+
+## Profile
+
+- Nationality: French and Swiss (Franco-Swiss), native French speaker
+- Location: Tokyo, Japan
+- Role: iOS & web developer
+- Looking for: internships and jobs, open to all kinds of projects
+- Languages: French (native), Japanese (JLPT N2), English (TOEIC 925)
+- Certifications: Bachelor in International Relations (University of Geneva), JLPT N2, TOEIC 925, Microsoft AZ-900, Microsoft AI-901
+
+## Background
+
+- 2025–2027: HAL Tokyo, Information Processing (情報処理), 2-year program. Favorite subjects: web development, databases, Azure.
+- 2022–2025: Work, languages and personal projects. Internship at a Japanese company exporting to France; assistant roles (France–Japan administration, support for scientific articles); app development; website management; educational materials for children, in a team. One year in Australia to improve English; Japanese studies up to JLPT N2.
+- 2018–2022: University of Geneva (Switzerland), Bachelor in International Relations, with an exchange at Keio University (Japan).
+
+## Coding journey
+
+- 2021: started learning Python on his own.
+- Late 2022: started building iOS apps with Xcode and Swift, writing code himself, before using any AI tool.
+- 2024: started using AI as an assistant (GPT-4o).
+- Now: builds with Claude Code as a coding agent. Simon designs the architecture, makes the decisions, reviews and tests the code, and ships it.
+
+## Skills
+
+- iOS: Swift, UIKit, SwiftUI, StoreKit 2, WidgetKit, Vision
+- Web: HTML, CSS, JavaScript, Node.js, TypeScript
+- Cloud: Azure Functions, Azure Cosmos DB, Azure App Service, Azure Static Web Apps, Azure OpenAI, Microsoft Entra ID
+- Other: Java, SQL, Firebase, Google AdMob, Git, Xcode
+
+## Projects
+
+- [Kanji Otter — How it's built](https://simondepussay.com/kanji-otter.html): iPhone app to learn JLPT kanji (N5 to N1), developed since 2024 and improved with user feedback, 600+ downloads, 6 languages. Swift app with offline-first progress, accounts with Microsoft Entra External ID, cloud save through an Azure Functions API (Node/TypeScript) and Azure Cosmos DB, StoreKit 2 subscriptions, Google AdMob rewarded ads, Firebase Analytics. The same structure is reused for two more apps in progress (English vocabulary, Japanese grammar).
+- [Kanji Otter on the App Store](https://apps.apple.com/us/app/jlpt-kanji-otter-adventure/id6497395953)
+- [Kota Illustrator website](https://gray-cliff-055dc5d00.5.azurestaticapps.net/): artist website for the Japanese illustrator こた, responsive (desktop and smartphone), Azure Static Web Apps.
+- [Porco Rosso fan website](https://ambitious-rock-08ecb2600.5.azurestaticapps.net/): fan website for the Studio Ghibli film 紅の豚, desktop format, Azure Static Web Apps.
+- [This portfolio](https://simondepussay.com): Node.js on Azure App Service, with an AI assistant on Azure OpenAI using a managed identity (no secret keys).

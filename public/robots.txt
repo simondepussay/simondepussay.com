@@ -1,0 +1,6 @@
+# Tout le monde est bienvenu : moteurs de recherche et assistants IA
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://simondepussay.com/sitemap.xml

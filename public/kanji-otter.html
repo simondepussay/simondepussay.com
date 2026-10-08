@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanji Otter — 設計 / How it's built | Simon Depussay</title>
+  <meta name="description" content="Kanji Otter（iPhoneアプリ）の設計とアーキテクチャ。How the Kanji Otter iPhone app is built: Swift, Azure Functions, Cosmos DB, Microsoft Entra External ID, StoreKit 2.">
+  <link rel="canonical" href="https://simondepussay.com/kanji-otter.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://simondepussay.com/kanji-otter.html">
+  <meta property="og:site_name" content="Simon Depussay">
+  <meta property="og:title" content="Kanji Otter — 設計 / How it's built">
+  <meta property="og:description" content="iPhoneアプリ Kanji Otter の設計。How the Kanji Otter iPhone app is built: Swift, Azure Functions, Cosmos DB, Entra External ID, StoreKit 2.">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://simondepussay.com/og-kanji-otter.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Kanji Otter — How it's built">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="photo.png">
+  <link rel="apple-touch-icon" href="photo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="kanji-otter.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "JLPT Kanji Otter Adventure",
+  "alternateName": "Kanji Otter",
+  "operatingSystem": "iOS",
+  "applicationCategory": "EducationalApplication",
+  "url": "https://simondepussay.com/kanji-otter.html",
+  "installUrl": "https://apps.apple.com/us/app/jlpt-kanji-otter-adventure/id6497395953",
+  "sameAs": [
+    "https://kanjiotter.com",
+    "https://apps.apple.com/us/app/jlpt-kanji-otter-adventure/id6497395953"
+  ],
+  "inLanguage": [
+    "en",
+    "fr",
+    "es",
+    "vi",
+    "id",
+    "th"
+  ],
+  "author": {
+    "@type": "Person",
+    "name": "Simon Depussay",
+    "url": "https://simondepussay.com/"
+  },
+  "description": "iPhone app to learn JLPT kanji (N5 to N1). Swift, Azure Functions, Azure Cosmos DB, Microsoft Entra External ID, StoreKit 2."
+}
+  </script>
+</head>
+<body class="etude">
+  <nav class="retour">
+    <a href="./">← ポートフォリオ / Portfolio</a>
+  </nav>
+
+  <header class="hero">
+    <p class="surtitre">Case study · iPhone app</p>
+    <h1>Kanji Otter</h1>
+    <p>JLPTの漢字（N5〜N1）を、長く楽しく続けられるように作ったiPhoneアプリです。<br>
+      <span class="en">An iPhone app to learn JLPT kanji (N5 to N1), designed to keep learners going for the long run.</span></p>
+    <div class="liens">
+      <a href="https://apps.apple.com/us/app/jlpt-kanji-otter-adventure/id6497395953" target="_blank" rel="noopener">App Store</a>
+      <a href="https://kanjiotter.com" target="_blank" rel="noopener">サイト / Website</a>
+    </div>
+  </header>
+
+  <ul class="chiffres">
+    <li><strong>2024〜</strong><span>ユーザーの声で改善中<br><span class="en">improved with user feedback</span></span></li>
+    <li><strong>6</strong><span>言語<br><span class="en">languages</span></span></li>
+    <li><strong>600+</strong><span>ダウンロード<br><span class="en">downloads</span></span></li>
+    <li><strong>+2</strong><span>同じ構成の別アプリ<br><span class="en">apps reusing this structure</span></span></li>
+  </ul>
+
+  <!-- 1. Architecture -->
+  <section>
+    <h2>1. 全体の構成 <span class="en">Architecture</span></h2>
+    <p>学習データはまずiPhoneの中に保存され、オフラインでも使えます。アカウントとクラウド保存はAzure、課金はApple、広告と分析はGoogleが担当します。<br>
+      <span class="en">Progress lives on the iPhone first, so the app works offline. Azure handles accounts and cloud save, Apple handles payments, Google handles ads and analytics.</span></p>
+
+    <figure class="schema">
+      <svg viewBox="0 0 800 520" role="img" aria-labelledby="archi-titre">
+        <title id="archi-titre">Kanji Otter architecture: iPhone app connected to Azure Functions, Cosmos DB, Microsoft Entra External ID, StoreKit 2, AdMob and Firebase</title>
+        <defs>
+          <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="pointe"/>
+          </marker>
+        </defs>
+
+        <!-- iPhone -->
+        <rect x="20" y="20" width="250" height="480" rx="28" class="tel"/>
+        <text x="145" y="54" class="titre-boite" text-anchor="middle">iPhone app</text>
+        <text x="145" y="74" class="petit" text-anchor="middle">Swift · UIKit + SwiftUI</text>
+        <g class="module">
+          <rect x="40" y="96" width="210" height="56" rx="10"/>
+          <text x="145" y="120" text-anchor="middle">学習データ / Progress</text>
+          <text x="145" y="138" text-anchor="middle" class="petit">UserDefaults (offline first)</text>
+          <rect x="40" y="170" width="210" height="56" rx="10"/>
+          <text x="145" y="194" text-anchor="middle">端末の鍵 / Device secret</text>
+          <text x="145" y="212" text-anchor="middle" class="petit">Keychain</text>
+          <rect x="40" y="244" width="210" height="56" rx="10"/>
+          <text x="145" y="268" text-anchor="middle">写真から漢字 / Kanji OCR</text>
+          <text x="145" y="286" text-anchor="middle" class="petit">Apple Vision (ja-JP)</text>
+          <rect x="40" y="318" width="210" height="56" rx="10"/>
+          <text x="145" y="342" text-anchor="middle">ホーム画面 / Widget</text>
+          <text x="145" y="360" text-anchor="middle" class="petit">WidgetKit</text>
+          <rect x="40" y="392" width="210" height="56" rx="10"/>
+          <text x="145" y="416" text-anchor="middle">6言語 / Localization</text>
+          <text x="145" y="434" text-anchor="middle" class="petit">EN · FR · ES · VI · ID · TH</text>
+        </g>
+
+        <!-- Azure -->
+        <rect x="400" y="20" width="340" height="206" rx="16" class="groupe"/>
+        <text x="416" y="42" class="titre-groupe">Microsoft Azure</text>
+        <g class="azure">
+          <rect x="420" y="54" width="300" height="60" rx="12"/>
+          <text x="570" y="79" text-anchor="middle">Azure Functions API</text>
+          <text x="570" y="99" text-anchor="middle" class="petit">Node 22 · TypeScript · 8 REST routes</text>
+          <rect x="420" y="148" width="300" height="60" rx="12"/>
+          <text x="570" y="173" text-anchor="middle">Azure Cosmos DB</text>
+          <text x="570" y="193" text-anchor="middle" class="petit">1 document per account</text>
+        </g>
+        <line x1="570" y1="114" x2="570" y2="146" class="lien" marker-end="url(#fleche)"/>
+
+        <!-- Services -->
+        <g class="service">
+          <rect x="420" y="248" width="300" height="52" rx="12"/>
+          <text x="570" y="270" text-anchor="middle">Microsoft Entra External ID</text>
+          <text x="570" y="288" text-anchor="middle" class="petit">player accounts · email + password</text>
+          <rect x="420" y="316" width="300" height="52" rx="12"/>
+          <text x="570" y="338" text-anchor="middle">Apple StoreKit 2</text>
+          <text x="570" y="356" text-anchor="middle" class="petit">subscription · lifetime purchase</text>
+          <rect x="420" y="384" width="300" height="52" rx="12"/>
+          <text x="570" y="406" text-anchor="middle">Google AdMob</text>
+          <text x="570" y="424" text-anchor="middle" class="petit">rewarded ads (free plan)</text>
+          <rect x="420" y="452" width="300" height="52" rx="12"/>
+          <text x="570" y="474" text-anchor="middle">Firebase Analytics</text>
+          <text x="570" y="492" text-anchor="middle" class="petit">usage statistics</text>
+        </g>
+
+        <!-- Liens : tous partent du téléphone -->
+        <line x1="272" y1="84" x2="418" y2="84" class="lien" marker-start="url(#fleche)" marker-end="url(#fleche)"/>
+        <text x="282" y="76" class="etiquette">HTTPS · save / restore</text>
+        <line x1="272" y1="274" x2="418" y2="274" class="lien" marker-end="url(#fleche)"/>
+        <text x="282" y="266" class="etiquette">sign-in → token (JWT)</text>
+        <line x1="272" y1="342" x2="418" y2="342" class="lien" marker-end="url(#fleche)"/>
+        <text x="282" y="334" class="etiquette">purchases</text>
+        <line x1="272" y1="410" x2="418" y2="410" class="lien" marker-end="url(#fleche)"/>
+        <text x="282" y="402" class="etiquette">ads</text>
+        <line x1="272" y1="478" x2="418" y2="478" class="lien" marker-end="url(#fleche)"/>
+        <text x="282" y="470" class="etiquette">events</text>
+
+        <!-- L'API vérifie les jetons de l'annuaire -->
+        <path d="M720,274 C772,274 772,84 722,84" class="lien pointille" marker-end="url(#fleche)"/>
+        <text x="784" y="180" class="etiquette" text-anchor="middle" transform="rotate(90 784 180)">verify JWT</text>
+      </svg>
+    </figure>
+  </section>
+
+  <!-- 2. Cloud save -->
+  <section>
+    <h2>2. アカウントとクラウド保存 <span class="en">Accounts &amp; cloud save</span></h2>
+    <p>登録しなくてもすぐに使えて、あとからメールでアカウントを作れる「匿名ファースト」の設計です。<br>
+      <span class="en">"Anonymous first": no sign-up needed to start, an email account can be added later.</span></p>
+
+    <ol class="flux">
+      <li>
+        <b>初回起動 <span class="en">First launch</span></b>
+        アプリが匿名アカウントとランダムな秘密鍵（256ビット）を作り、Keychainに保存。
+        <span class="en">The app creates an anonymous account and a random 256-bit secret, stored in the Keychain.</span>
+      </li>
+      <li>
+        <b>自動保存 <span class="en">Auto save</span></b>
+        許可リストにあるデータだけを送信。サーバーは秘密鍵のハッシュ（SHA-256）しか持ちません。
+        <span class="en">Only whitelisted progress keys are sent. The server only keeps a SHA-256 hash of the secret.</span>
+      </li>
+      <li>
+        <b>アカウント連携 <span class="en">Link an account</span></b>
+        Entra External IDでメール＋パスワードを登録。APIがトークン（JWT）の署名を検証します。
+        <span class="en">Email + password through Entra External ID. The API verifies the JWT signature, issuer and audience.</span>
+      </li>
+      <li>
+        <b>機種変更 <span class="en">New phone</span></b>
+        ログインすると進捗が戻ります。万一のために、時間をおいたバックアップも残します。
+        <span class="en">Sign in and progress comes back. A time-delayed backup copy protects against mistakes.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 3. Learning loop -->
+  <section>
+    <h2>3. 学習の流れ <span class="en">Learning loop</span></h2>
+    <p>「覚える → 試す → 忘れる前に復習する」を、ゲームの冒険にのせて続けられるようにしました。<br>
+      <span class="en">"Learn → test → review before you forget", wrapped in an adventure so learners keep coming back.</span></p>
+
+    <figure class="schema">
+      <svg viewBox="0 0 760 320" role="img" aria-labelledby="boucle-titre">
+        <title id="boucle-titre">Learning loop: study, challenge, spaced repetition reviews, river progress with bosses, tourism spots and JLPT exam mode</title>
+        <g class="etape">
+          <rect x="20" y="40" width="200" height="90" rx="14"/>
+          <text x="120" y="76" text-anchor="middle">① 学ぶ / Study</text>
+          <text x="120" y="98" text-anchor="middle" class="petit">kanji cards · dictionary</text>
+          <text x="120" y="116" text-anchor="middle" class="petit">photo → kanji (OCR)</text>
+          <rect x="280" y="40" width="200" height="90" rx="14"/>
+          <text x="380" y="76" text-anchor="middle">② 試す / Challenge</text>
+          <text x="380" y="98" text-anchor="middle" class="petit">quizzes · rhythm game</text>
+          <text x="380" y="116" text-anchor="middle" class="petit">JLPT exam mode</text>
+          <rect x="540" y="40" width="200" height="90" rx="14"/>
+          <text x="640" y="76" text-anchor="middle">③ 復習 / Review</text>
+          <text x="640" y="98" text-anchor="middle" class="petit">spaced repetition (SRS)</text>
+          <text x="640" y="116" text-anchor="middle" class="petit">1 · 3 · 7 · 10 · 30 · 90 days</text>
+        </g>
+        <line x1="220" y1="85" x2="276" y2="85" class="lien" marker-end="url(#fleche)"/>
+        <line x1="480" y1="85" x2="536" y2="85" class="lien" marker-end="url(#fleche)"/>
+        <path d="M640,130 C640,190 120,190 120,134" class="lien pointille" marker-end="url(#fleche)"/>
+        <text x="380" y="204" text-anchor="middle" class="etiquette">忘れる前にもう一度 / again, just before you forget</text>
+
+        <rect x="20" y="230" width="720" height="70" rx="14" class="riviere"/>
+        <text x="380" y="258" text-anchor="middle" class="titre-boite">川の冒険 / The river: 278 steps</text>
+        <text x="380" y="280" text-anchor="middle" class="petit">ボス戦 bosses · 日本の観光地 Japan travel spots (steps 79–278) · ストリーク streaks</text>
+      </svg>
+    </figure>
+  </section>
+
+  <!-- 4. Monetization -->
+  <section>
+    <h2>4. 収益化 <span class="en">Monetization</span></h2>
+    <p>無料でも学び続けられることを大切にしました。制限があるのは一部のモードだけです。<br>
+      <span class="en">Learning must stay possible for free: only some modes have a limit.</span></p>
+    <div class="formules">
+      <div>
+        <b>無料 <span class="en">Free</span></b>
+        5時間ごとに回復する回数制限。広告を見ると延長できます。ボス・SRS・川・辞書は無制限。
+        <span class="en">A quota that refills every 5 hours, extendable with rewarded ads. Bosses, SRS, the river and the dictionary are unlimited.</span>
+      </div>
+      <div>
+        <b>サブスク / 買い切り <span class="en">Subscription / Lifetime</span></b>
+        StoreKit 2で更新や他の端末での購入も追跡。以前の買い切り購入者はそのまま認識されます。
+        <span class="en">StoreKit 2 follows renewals and purchases from other devices. Earlier one-time buyers are recognized automatically.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Decisions -->
+  <section>
+    <h2>5. 設計で考えたこと <span class="en">Design decisions</span></h2>
+    <ul class="decisions">
+      <li><b>オフラインファースト</b> — 電車の中でも使えるように、データは端末に保存。
+        <span class="en"><b>Offline first</b> — progress stays on the phone so the app works on the train.</span></li>
+      <li><b>パスワードを自分で持たない</b> — 認証はMicrosoft Entra External IDに任せ、サーバーはトークンを検証するだけ。
+        <span class="en"><b>No passwords on my server</b> — Entra External ID handles sign-in, the API only verifies tokens.</span></li>
+      <li><b>秘密はKeychainに</b> — UserDefaultsではなくKeychain。暗号化されていないバックアップから読めないようにするため。
+        <span class="en"><b>Secrets in the Keychain</b> — not UserDefaults, so they can't be read from an unencrypted backup.</span></li>
+      <li><b>許可リスト方式の同期</b> — 新しいデータは明示的に追加しない限り送信されません。
+        <span class="en"><b>Whitelist sync</b> — new data is never uploaded unless explicitly added to the list.</span></li>
+      <li><b>アカウント削除</b> — Appleの審査ルールに合わせ、保存データとディレクトリ上のアカウントを両方削除。
+        <span class="en"><b>Account deletion</b> — per App Store rules, both the save data and the directory account are deleted.</span></li>
+    </ul>
+    <h3>チュートリアル <span class="en">Tutorial</span></h3>
+    <p>最初のゲームは案内つき。画面を少しずつ照らし、今さわるべきボタンだけを見せます。辞書などの説明は、その機能を初めて使うときに表示。毎日のまとめやストリークの通知は、チュートリアルが終わるまで待ちます。<br>
+      <span class="en">The first game is guided: the screen is revealed step by step, highlighting only the button to tap next. Feature tips (like the dictionary) appear the first time you use them. Daily recaps and streak alerts wait until the tutorial is over, so new players are never overwhelmed.</span></p>
+
+    <h3>ゲーミフィケーション <span class="en">Gamification</span></h3>
+    <p>いろいろな練習で飽きないようにしています：選択クイズ、落ちてくる音符、なわとび、リズムゲーム、ボス戦、JLPT模試。<br>
+      <span class="en">Many exercise types keep it fresh: multiple-choice quizzes, falling notes, jump rope, a rhythm game, boss battles and a JLPT mock exam.</span></p>
+    <p>ごほうびは4つの時間軸で設計しました。<span class="en">Rewards are designed on four time scales:</span></p>
+    <ol class="horizons">
+      <li><b>すぐ <span class="en">Instant</span></b>
+        正解ごとにカワウソが登場して反応。連続正解でコンボ、たまにレアなカワウソも。
+        <span class="en">Every right answer brings an otter that reacts; streaks of answers build a combo, and a rare otter shows up now and then.</span></li>
+      <li><b>今日 <span class="en">Today</span></b>
+        一日のまとめと王冠、毎日のストリーク、そして川のミッション（ポイント、連続日数、カワウソの数など）。
+        <span class="en">A daily recap with crowns, a day streak to keep alive, and river missions (points, streak days, otters on screen…).</span></li>
+      <li><b>数週間 <span class="en">Weeks</span></b>
+        278ステップの川を進み、ボスを倒して、日本の観光地を集める。
+        <span class="en">Travel along a 278-step river, beat bosses and unlock Japanese travel spots.</span></li>
+      <li><b>数か月 <span class="en">Months</span></b>
+        JLPTのレベルを上げ、模試に合格し、90日後の復習まで覚え続ける。
+        <span class="en">Climb the JLPT levels, pass the mock exam, and still remember kanji at the 90-day review.</span></li>
+    </ol>
+  </section>
+
+  <!-- 6. Lessons -->
+  <section>
+    <h2>6. 学んだこと <span class="en">What I learned</span></h2>
+    <p>一番難しかったのは、ユーザーが実際にどう操作するかを理解することです。何を読み、何を読み飛ばすか。小さなつまずきで迷ったり、やめてしまったりする場面をひとつずつ減らしています。<br>
+      <span class="en">The hardest part was understanding how people really use the app: what they read, what they skip, and the small blockers that make them feel lost or quit. I keep removing them one by one.</span></p>
+  </section>
+
+  <footer class="pied">
+    <a href="./">← ポートフォリオに戻る / Back to portfolio</a>
+  </footer>
+
+  <button type="button" class="chat-bouton" id="ask-ai">
+    <img src="robot.png" alt="">
+    <span><strong>AIに質問</strong><br>Ask AI</span>
+  </button>
+
+  <script src="chat.js" defer></script>
+</body>
+</html>
