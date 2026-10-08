@@ -136,14 +136,5 @@ html { scroll-behavior: smooth; }
 .colonnes li .en { display: block; font-size: 0.85em; }
 @media (max-width: 600px) { .colonnes { grid-template-columns: 1fr; } }
 
-.etapes-dev { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.etapes-dev li { position: relative; padding: 14px 14px 12px; border: 1px solid #e3e6ec; border-radius: 12px; background: #fafbfd; font-size: 0.9rem; line-height: 1.5; }
-.etapes-dev li:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 50%; transform: translate(50%, -50%); color: #1a5fd0; font-weight: 700; }
-.etapes-dev b { display: block; font-size: 1.3rem; color: #1a5fd0; margin-bottom: 4px; }
-.etapes-dev b .en { font-size: 0.6em; }
-.etapes-dev .en { display: block; margin-top: 4px; font-size: 0.85em; }
-@media (max-width: 720px) {
-  .etapes-dev { grid-template-columns: 1fr 1fr; }
-  .etapes-dev li::after { display: none; }
-}
-@media (max-width: 420px) { .etapes-dev { grid-template-columns: 1fr; } }
+.recit { margin: 0; }
+.recit-lien { margin: 10px 0 0; font-size: 0.9rem; color: #555; }
