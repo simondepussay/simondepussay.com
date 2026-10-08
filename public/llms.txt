@@ -3,6 +3,7 @@
 > Franco-Swiss iOS & web developer based in Tokyo, Japan. Builds iPhone apps in Swift and cloud backends on Microsoft Azure. Native French speaker, JLPT N2 (Japanese), TOEIC 925 (English). Currently studying at HAL Tokyo (2025–2027) and open to internships and jobs.
 
 Contact: depussay.simon@icloud.com
+GitHub: https://github.com/simondepussay
 Website: https://simondepussay.com (Japanese and English)
 The website also has an AI assistant that answers questions about Simon.
 

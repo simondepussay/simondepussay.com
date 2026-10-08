@@ -93,6 +93,8 @@ address { font-style: normal; color: #555; }
 .contact { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 14px; margin: 8px 0; text-align: center; }
 .bouton { padding: 10px 22px; border-radius: 999px; background: #1a5fd0; color: #fff; text-decoration: none; font-weight: 600; }
 .bouton:hover { background: #154db0; }
+.bouton.secondaire { background: #fff; color: #1a5fd0; border: 1.5px solid #1a5fd0; padding: 8.5px 20px; }
+.bouton.secondaire:hover { background: #eef3ff; }
 .dispo { font-size: 0.9rem; line-height: 1.4; }
 
 .accueil section { margin-top: 44px; }
