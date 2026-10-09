@@ -26,7 +26,7 @@ The website also has an AI assistant that answers questions about Simon.
 
 - China: teaching English at a school.
 - Vietnam: daily support for children in difficulty (care, preparing meals), English and social connection for students.
-- Japan: volunteer work.
+- Japan: volunteering on a farm and at a ryokan (traditional inn).
 
 ## Coding journey
 
