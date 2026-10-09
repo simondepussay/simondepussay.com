@@ -34,6 +34,7 @@ The website also has an AI assistant that answers questions about Simon.
 - iOS: Swift, UIKit, SwiftUI, StoreKit 2, WidgetKit, Vision
 - Web: HTML, CSS, JavaScript, Node.js, TypeScript, WordPress
 - Cloud: Azure Functions, Azure Cosmos DB, Azure App Service, Azure Static Web Apps, Azure OpenAI, Microsoft Entra ID
+- Business: marketing (main subject during the exchange at Keio University), Excel (basics)
 - Other: Java, SQL, Firebase, Google AdMob, Git, Xcode
 
 ## Projects
