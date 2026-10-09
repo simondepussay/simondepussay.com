@@ -138,3 +138,12 @@ html { scroll-behavior: smooth; }
 
 .recit { margin: 0; }
 .recit-lien { margin: 10px 0 0; font-size: 0.9rem; color: #555; }
+
+.sous-titre { font-size: 1rem; margin: 28px 0 10px; }
+.sous-titre .en { font-weight: normal; margin-left: 4px; }
+.benevolat { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.benevolat li { padding: 12px 14px; border: 1px solid #e3e6ec; border-radius: 12px; background: #fafbfd; font-size: 0.9rem; line-height: 1.5; }
+.benevolat b { display: block; margin-bottom: 4px; color: #1a5fd0; }
+.benevolat .en { display: block; font-size: 0.85em; margin-top: 2px; }
+.benevolat b .en { display: inline; margin-left: 4px; }
+@media (max-width: 600px) { .benevolat { grid-template-columns: 1fr; } }
