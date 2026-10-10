@@ -1,6 +1,6 @@
 # Simon Depussay (シモン デプセ)
 
-> Franco-Swiss iOS & web developer based in Tokyo, Japan. Builds iPhone apps in Swift and cloud backends on Microsoft Azure. Native French speaker, JLPT N2 (Japanese), TOEIC 925 (English). Currently studying at HAL Tokyo (2025–2027) and open to internships and jobs.
+> Franco-Swiss iOS & web developer based in Tokyo, Japan. Builds iPhone apps in Swift and cloud backends on Microsoft Azure. Native French speaker, JLPT N2 (Japanese), TOEIC 925 (English). Currently studying at HAL Tokyo (2026–2028) and open to internships and jobs.
 
 Contact: depussay.simon@icloud.com
 GitHub: https://github.com/simondepussay
@@ -18,8 +18,8 @@ The website also has an AI assistant that answers questions about Simon.
 
 ## Background
 
-- 2025–2027: HAL Tokyo, Information Processing (情報処理), 2-year program. Favorite subjects: web development, databases, Azure.
-- 2022–2025: Work, languages and personal projects. Internship at a Japanese company exporting to France; assistant roles (France–Japan administration, support for scientific articles); app development; website management; educational materials for children, in a team. One year in Australia to improve English; Japanese studies up to JLPT N2.
+- 2026–2028: HAL Tokyo, Information Processing (情報処理), 2-year program, graduation expected in March 2028. Favorite subjects: web development, databases, Azure.
+- 2022–2026: Work, languages and personal projects. Internship at a Japanese company exporting to France; assistant roles (France–Japan administration, support for scientific articles); app development; website management; educational materials for children, in a team. One year in Australia to improve English; Japanese studies up to JLPT N2.
 - 2018–2022: University of Geneva (Switzerland), Bachelor in International Relations, with an exchange at Keio University (Japan).
 
 ## Volunteering
