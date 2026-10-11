@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JLPT Étude — 設計と運用 / How it's built and run | Simon Depussay</title>
+  <meta name="description" content="JLPT Étude（漢字・語彙・文法の毎日のレッスン）の設計と本番運用。How the JLPT Étude web app is built and run: Azure Static Web Apps, Azure Functions, Blob Storage, 62 automated tests, rollback, monitoring.">
+  <link rel="canonical" href="https://simondepussay.com/jlpt-etude.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://simondepussay.com/jlpt-etude.html">
+  <meta property="og:site_name" content="Simon Depussay">
+  <meta property="og:title" content="JLPT Étude — 設計と運用 / How it's built and run">
+  <meta property="og:description" content="毎日のレッスンでJLPT N1対策をするWebアプリ。A web app with a daily JLPT N1 lesson: serverless on Azure, offline first, 62 automated tests, tested rollback.">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://simondepussay.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="photo.png">
+  <link rel="apple-touch-icon" href="photo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="kanji-otter.css">
+  <link rel="stylesheet" href="jlpt-etude.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JLPT Étude",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web",
+  "url": "https://simondepussay.com/jlpt-etude.html",
+  "sameAs": ["https://purple-flower-00ac22900.5.azurestaticapps.net"],
+  "inLanguage": ["fr", "en", "ja"],
+  "author": { "@type": "Person", "name": "Simon Depussay", "url": "https://simondepussay.com/" },
+  "description": "Web app with a daily JLPT N1 lesson (kanji, vocabulary, grammar). Azure Static Web Apps, Azure Functions, Azure Blob Storage, Google sign-in, 62 automated tests, tested rollback and monitoring."
+}
+  </script>
+</head>
+<body class="etude">
+  <nav class="retour">
+    <a href="./">← ポートフォリオ / Portfolio</a>
+  </nav>
+
+  <header class="hero">
+    <p class="surtitre">Case study · Web app</p>
+    <h1>JLPT Étude</h1>
+    <p>JLPT N1の漢字・語彙・文法を、毎日自動で作られる短いレッスンで学ぶWebアプリです。試験日と勉強できる日数から、その日にやる量と時間を計算します。<br>
+      <span class="en">A web app to prepare the JLPT N1 (kanji, vocabulary, grammar) with a short lesson built automatically every day. It works out how much to do, and how long it will take, from the exam date and the days you can study.</span></p>
+    <div class="liens">
+      <a href="https://purple-flower-00ac22900.5.azurestaticapps.net" target="_blank" rel="noopener">アプリを開く / Open the app</a>
+    </div>
+  </header>
+
+  <ul class="chiffres">
+    <li><strong>62</strong><span>自動テスト（毎デプロイ前）<br><span class="en">automated tests, before every deploy</span></span></li>
+    <li><strong>4 637</strong><span>語・漢字・文法<br><span class="en">words, kanji and grammar points</span></span></li>
+    <li><strong>2分</strong><span>ロールバック（実測）<br><span class="en">rollback, measured</span></span></li>
+    <li><strong>30分</strong><span>ごとの死活監視<br><span class="en">health check interval</span></span></li>
+  </ul>
+
+  <!-- 1. Architecture -->
+  <section>
+    <h2>1. 全体の構成 <span class="en">Architecture</span></h2>
+    <p>サーバーを自分で管理しない構成です。画面とAPIはAzure Static Web Apps、データはBlob Storage。学習データはまずブラウザに保存されるので、APIが止まっても勉強は続けられます。<br>
+      <span class="en">No servers to manage: Azure Static Web Apps serves the app and its API, Blob Storage keeps the data. Progress is saved in the browser first, so studying continues even if the API is down.</span></p>
+
+    <figure class="schema">
+      <svg viewBox="0 0 800 560" role="img" aria-labelledby="archi-titre">
+        <title id="archi-titre">JLPT Étude architecture: browser app (offline first) talking to Azure Static Web Apps (static site and Azure Functions API), Azure Blob Storage with 30-day versions, Application Insights, Google sign-in, and a GitHub Actions pipeline with tests, deploy, verification and a 30-minute health check</title>
+        <defs>
+          <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="pointe"/>
+          </marker>
+        </defs>
+
+        <!-- Navigateur -->
+        <rect x="20" y="20" width="250" height="330" rx="20" class="tel"/>
+        <text x="145" y="52" class="titre-boite" text-anchor="middle">ブラウザ / Browser</text>
+        <text x="145" y="72" class="petit" text-anchor="middle">HTML · CSS · JavaScript (no framework)</text>
+        <g class="module">
+          <rect x="40" y="92" width="210" height="56" rx="10"/>
+          <text x="145" y="116" text-anchor="middle">毎日のレッスン / Daily lesson</text>
+          <text x="145" y="134" text-anchor="middle" class="petit">planning · spaced repetition</text>
+          <rect x="40" y="164" width="210" height="56" rx="10"/>
+          <text x="145" y="188" text-anchor="middle">学習データ / Progress</text>
+          <text x="145" y="206" text-anchor="middle" class="petit">localStorage (offline first)</text>
+          <rect x="40" y="236" width="210" height="56" rx="10"/>
+          <text x="145" y="260" text-anchor="middle">同期とマージ / Sync &amp; merge</text>
+          <text x="145" y="278" text-anchor="middle" class="petit">ETag · conflict merge</text>
+          <text x="145" y="322" text-anchor="middle" class="petit">FR / EN · 4 637 items N1</text>
+        </g>
+
+        <!-- Azure -->
+        <rect x="400" y="20" width="380" height="330" rx="16" class="groupe"/>
+        <text x="416" y="42" class="titre-groupe">Microsoft Azure (East Asia)</text>
+        <g class="azure">
+          <rect x="420" y="56" width="340" height="74" rx="12"/>
+          <text x="590" y="82" text-anchor="middle">Azure Static Web Apps</text>
+          <text x="590" y="102" text-anchor="middle" class="petit">static site + Azure Functions API (Node 20)</text>
+          <text x="590" y="118" text-anchor="middle" class="petit">/health · /auth/login · /me · /progress/N1</text>
+          <rect x="420" y="164" width="340" height="66" rx="12"/>
+          <text x="590" y="190" text-anchor="middle">Azure Blob Storage (private)</text>
+          <text x="590" y="210" text-anchor="middle" class="petit">1 file per user · versions + soft delete 30 days</text>
+          <rect x="420" y="262" width="340" height="66" rx="12"/>
+          <text x="590" y="288" text-anchor="middle">Application Insights</text>
+          <text x="590" y="308" text-anchor="middle" class="petit">API errors and calls · capped at 0.1 GB/day</text>
+        </g>
+        <line x1="590" y1="130" x2="590" y2="162" class="lien" marker-end="url(#fleche)"/>
+        <path d="M760,110 C792,110 792,295 762,295" class="lien pointille" marker-end="url(#fleche)"/>
+
+        <!-- Liens navigateur ↔ Azure -->
+        <line x1="272" y1="120" x2="418" y2="120" class="lien" marker-start="url(#fleche)" marker-end="url(#fleche)"/>
+        <text x="282" y="112" class="etiquette">HTTPS · save / restore</text>
+
+        <!-- Google -->
+        <g class="service">
+          <rect x="20" y="380" width="250" height="56" rx="12"/>
+          <text x="145" y="404" text-anchor="middle">Google Sign-In</text>
+          <text x="145" y="422" text-anchor="middle" class="petit">ID token → API session (no password)</text>
+        </g>
+        <line x1="145" y1="378" x2="145" y2="352" class="lien" marker-end="url(#fleche)"/>
+
+        <!-- GitHub Actions -->
+        <rect x="300" y="380" width="480" height="160" rx="16" class="riviere"/>
+        <text x="316" y="402" class="titre-groupe">GitHub Actions</text>
+        <g class="etape">
+          <rect x="316" y="414" width="138" height="56" rx="10"/>
+          <text x="385" y="438" text-anchor="middle">① Test</text>
+          <text x="385" y="456" text-anchor="middle" class="petit">テスト · 62 tests · 15 s</text>
+          <rect x="474" y="414" width="138" height="56" rx="10"/>
+          <text x="543" y="438" text-anchor="middle">② Deploy</text>
+          <text x="543" y="456" text-anchor="middle" class="petit">デプロイ · version stamp</text>
+          <rect x="632" y="414" width="132" height="56" rx="10"/>
+          <text x="698" y="438" text-anchor="middle">③ Verify</text>
+          <text x="698" y="456" text-anchor="middle" class="petit">確認 · /api/health</text>
+        </g>
+        <line x1="454" y1="442" x2="472" y2="442" class="lien" marker-end="url(#fleche)"/>
+        <line x1="612" y1="442" x2="630" y2="442" class="lien" marker-end="url(#fleche)"/>
+        <text x="540" y="498" text-anchor="middle" class="petit">PR → preview URL · manual run → rollback to any commit</text>
+        <text x="540" y="522" text-anchor="middle" class="petit">every 30 min: health check → e-mail alert if it fails</text>
+        <line x1="590" y1="380" x2="590" y2="332" class="lien pointille" marker-end="url(#fleche)"/>
+      </svg>
+    </figure>
+  </section>
+
+  <!-- 2. Daily lesson -->
+  <section>
+    <h2>2. 毎日のレッスン <span class="en">The daily lesson</span></h2>
+    <p>試験日・週に勉強できる日数・1日の上限時間から、毎日の新しい語・漢字・文法の数を計算します。実際の勉強ペースが予定より遅いと、アプリが知らせて計画を合わせます。<br>
+      <span class="en">From the exam date, the study days per week and a daily time limit, the app computes how many new words, kanji and grammar points to learn each day. If the real pace is slower than planned, it says so and adapts the plan.</span></p>
+
+    <ol class="flux">
+      <li>
+        <b>復習 <span class="en">Review</span></b>
+        忘れる前に復習（間隔反復）。正解するほど間隔が長くなります。
+        <span class="en">Spaced repetition: the better you know an item, the later it comes back.</span>
+      </li>
+      <li>
+        <b>新出 <span class="en">Learn</span></b>
+        5つずつ（文法は2つずつ）カードで覚えて、すぐに確認問題。
+        <span class="en">New items in batches of 5 (2 for grammar), each checked right after its card.</span>
+      </li>
+      <li>
+        <b>小テスト <span class="en">Test</span></b>
+        JLPT形式の問題（漢字読み、文法形式、文の組み立て★）。半分は苦手な項目から。
+        <span class="en">JLPT-style questions (kanji reading, grammar, ★ sentence order), half picked from weak items.</span>
+      </li>
+      <li>
+        <b>やり直し <span class="en">Retry</span></b>
+        間違えた問題はレッスンの最後にもう一度（最大3回）。
+        <span class="en">Missed questions come back at the end of the lesson (up to 3 times).</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 3. Production -->
+  <section>
+    <h2>3. 本番運用 <span class="en">Running it in production</span></h2>
+    <p>よく聞かれる質問に、できていることと、できていないことの両方で答えます。2026年10月11日に、下の手順はすべて一度実行して確認しました。<br>
+      <span class="en">Common questions, answered with what is in place and what is not. Every procedure below was run at least once on October 11, 2026.</span></p>
+
+    <div class="qa">
+      <h3>ポッドやワーカーは？ <span class="en">Pods or workers in production?</span></h3>
+      <p>ありません。Static Web AppsとAzure Functionsはマネージドサービスで、スケールもAzureが行います。アクセスが少ないアプリには、コストもほぼ0円で、パッチを当てるサーバーもありません。無料プランの上限（月100GBの転送量）を超えたら、App Serviceやコンテナへの移行を検討します。<br>
+        <span class="en">None. Static Web Apps and Azure Functions are managed services that scale on their own. For a low-traffic app this costs close to nothing and leaves no server to patch. Past the free plan limits (100 GB of bandwidth per month), I would move to App Service or containers.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>デプロイとロールバックは？ <span class="en">Deployments and rollbacks?</span></h3>
+      <p><code>main</code>にプッシュすると、62のテスト → デプロイ → 確認が自動で走ります。テストが1つでも失敗するとデプロイしません。確認では <code>/api/health</code> が今デプロイしたコミットを返すまで待ちます。プルリクエストごとにプレビュー用のURLが作られ、閉じると消えます。ロールバックは任意のコミットを再デプロイするだけで、実測2分3秒。最初の試行では短いコミットIDを受け付けない不具合が見つかり、その場で直しました。<br>
+        <span class="en">A push to <code>main</code> runs 62 tests → deploy → verification. A single failing test blocks the deploy. Verification waits until <code>/api/health</code> returns the commit that was just deployed. Every pull request gets its own preview URL, removed when it is closed. A rollback redeploys any earlier commit: measured at 2 min 03 s. The first attempt failed because short commit IDs were not accepted; I fixed it on the spot.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>障害時の予備環境は？ <span class="en">Fallback if it crashes?</span></h3>
+      <p>一番の守りはオフラインファーストです。APIが止まっても、学習データはブラウザに残り、復旧後に自動で同期されます。サーバーのデータは保存のたびにバージョンが残り、削除しても30日間は戻せます。復元スクリプトで、上書きされたデータの復元も試しました。<b>まだないもの</b>：別リージョンの待機環境。いまの利用規模では必要ないと判断しています。<br>
+        <span class="en">The main safety net is offline first: if the API is down, progress stays in the browser and syncs automatically once it is back. On the server, every save keeps a version and deletions can be undone for 30 days; I tested restoring an overwritten file with the restore script. <b>Not in place</b>: a standby environment in another region, not needed at this scale.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>アーキテクチャは？ <span class="en">Architecture?</span></h3>
+      <p>上の図のとおりです。APIは4つのルートだけ。同じアカウントを2台で使っても、ETagで競合を検出し、決めたルールでマージするので、データは失われません。<br>
+        <span class="en">See the diagram above. The API has only four routes. When the same account is used on two devices, ETags detect the conflict and the data is merged with defined rules, so nothing is lost.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>ビジネスルールは実際にいくつ実装・テストされている？ <span class="en">How many business rules are really implemented and tested?</span></h3>
+      <p>38のビジネスルール、10のデータチェック、14のAPIテストで、合計62。全部で約1秒、CIでは約15秒で終わります。下の表を参照してください。<br>
+        <span class="en">38 business rules, 10 data checks and 14 API tests: 62 in total. They run in about 1 second locally and about 15 seconds in CI. See the table below.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>24時間の保守は？ <span class="en">24/7 maintenance?</span></h3>
+      <p>個人プロジェクトなので、人によるオンコールはありません。そのかわり、30分ごとの死活監視（失敗するとメール）、デプロイ後の自動確認、Application Insightsでのエラー記録、2分のロールバック、30日分のバックアップ、そしてオフラインで動くアプリで、止まっても学習が続くようにしています。対応までの時間は、メールを読むまでの時間です。<br>
+        <span class="en">It is a personal project, so there is no human on call. Instead: a health check every 30 minutes (e-mail on failure), automatic verification after each deploy, API errors logged in Application Insights, a 2-minute rollback, 30 days of backups, and an app that keeps working offline. Response time is the time it takes me to read the e-mail.</span></p>
+    </div>
+  </section>
+
+  <!-- 4. Tests -->
+  <section>
+    <h2>4. テスト <span class="en">Tests</span></h2>
+    <table class="tests">
+      <thead><tr><th>分類 <span class="en">Area</span></th><th>数 <span class="en">Count</span></th><th>例 <span class="en">Examples</span></th></tr></thead>
+      <tbody>
+        <tr><td>間隔反復 <span class="en">Spaced repetition</span></td><td>9</td><td><span class="en">intervals 1/2/4 days then × ease, ease never below 1.3, cap at 365 days, levels</span></td></tr>
+        <tr><td>計画 <span class="en">Planning</span></td><td>9</td><td><span class="en">new items per day = remaining ÷ study days, final review weeks, time cap, double day</span></td></tr>
+        <tr><td>実際のペース <span class="en">Real pace</span></td><td>7</td><td><span class="en">no measure before 14 days, warning when below plan, streak, measured lesson time</span></td></tr>
+        <tr><td>同期 <span class="en">Sync</span></td><td>3</td><td><span class="en">merge keeps the most-reviewed item, days combined, newest settings win</span></td></tr>
+        <tr><td>レッスン <span class="en">Lesson</span></td><td>7</td><td><span class="en">order of steps, batches of 5, retry max 3 times, free practice leaves the plan untouched</span></td></tr>
+        <tr><td>問題・言語 <span class="en">Exercises &amp; language</span></td><td>3</td><td><span class="en">4 distinct choices, never another valid reading, FR/EN everywhere except Japanese</span></td></tr>
+        <tr><td>データ <span class="en">Data</span></td><td>10</td><td><span class="en">every word and kanji translated, every quiz sentence translated, 4 distinct options</span></td></tr>
+        <tr><td>API</td><td>14</td><td><span class="en">401 without session, 412 on conflict, 428 without If-Match, users isolated, account deletion</span></td></tr>
+      </tbody>
+    </table>
+    <p class="note">テストしていないもの：画面の見た目とブラウザでの通しテスト（E2E）。これは手作業で確認しています。<br>
+      <span class="en">Not covered: visual rendering and end-to-end browser tests, which I still check by hand.</span></p>
+  </section>
+
+  <!-- 5. Decisions -->
+  <section>
+    <h2>5. 設計で考えたこと <span class="en">Design decisions</span></h2>
+    <ul class="decisions">
+      <li><b>オフラインファースト</b> — アカウントがなくても使え、ログインするとそれまでの進捗がアカウントにマージされます。
+        <span class="en"><b>Offline first</b> — usable without an account; signing in merges the progress made so far into the account.</span></li>
+      <li><b>パスワードを持たない</b> — Googleのトークンの署名をAPIで検証し、自分のセッションを発行するだけ。
+        <span class="en"><b>No passwords</b> — the API verifies Google's ID token signature and issues its own session.</span></li>
+      <li><b>上書きしない保存</b> — ETagのない書き込みは拒否（428）。古いデータで新しいデータを消せません。
+        <span class="en"><b>No blind overwrites</b> — writes without an ETag are refused (428), so stale data can never replace newer data.</span></li>
+      <li><b>2言語</b> — 日本語はそのまま、それ以外はすべてフランス語か英語。4 637項目の意味を両方の言語で用意しました。
+        <span class="en"><b>Two languages</b> — Japanese stays as is, everything else is fully French or fully English, with meanings for all 4,637 items in both.</span></li>
+      <li><b>データの品質</b> — 元のリストにあった下のレベルとの重複161語を除き、ユーザーが「N1ではない」項目を外せるようにしました。
+        <span class="en"><b>Data quality</b> — 161 duplicates of lower levels removed from the source list, and users can flag items that are not N1.</span></li>
+    </ul>
+  </section>
+
+  <!-- 6. How it was built -->
+  <section>
+    <h2>6. 作り方と学んだこと <span class="en">How it was built, what I learned</span></h2>
+    <p>Claude Code（AIのコーディングエージェント）と一緒に作りました。何を作るか、構成、ルール、優先順位を決め、毎回動作を確認して、使いながら直してきたのは私です。AIで速く作れるからこそ、テスト、監視、ロールバックのように「動いていると証明できる」部分を後回しにしないことが大切だと学びました。<br>
+      <span class="en">Built with Claude Code, an AI coding agent. I decided what to build, the architecture, the rules and the priorities, checked every change and kept fixing things while using the app every day. Building fast with AI taught me not to postpone the parts that prove it works: tests, monitoring and rollback.</span></p>
+  </section>
+
+  <footer class="pied">
+    <a href="./">← ポートフォリオに戻る / Back to portfolio</a>
+  </footer>
+
+  <button type="button" class="chat-bouton" id="ask-ai">
+    <img src="robot.png" alt="">
+    <span><strong>AIに質問</strong><br>Ask AI</span>
+  </button>
+
+  <script src="chat.js" defer></script>
+</body>
+</html>

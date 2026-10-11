@@ -1,0 +1,16 @@
+/* Page JLPT Étude : complète kanji-otter.css (questions d'exploitation, tableau des tests) */
+.qa { margin-top: 18px; padding: 14px 16px; border: 1px solid #e3e6ec; border-left: 4px solid #1a5fd0; border-radius: 10px; background: #fafbfd; }
+.qa h3 { margin: 0 0 6px; font-size: 1rem; }
+.qa p { margin: 0; font-size: 0.92rem; line-height: 1.65; }
+.qa code, .etude code { font-size: 0.85em; background: #eef2f9; padding: 1px 5px; border-radius: 4px; }
+
+.tests { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.9rem; }
+.tests th, .tests td { padding: 9px 10px; border-bottom: 1px solid #e3e6ec; text-align: left; vertical-align: top; }
+.tests th { font-size: 0.8rem; color: #555; border-bottom: 2px solid #1a5fd0; }
+.tests td:nth-child(2) { font-weight: 700; color: #1a5fd0; text-align: center; white-space: nowrap; }
+.tests .en { display: block; color: #555; }
+.tests th .en { display: inline; margin-left: 4px; font-weight: normal; }
+.note { margin-top: 12px; font-size: 0.88rem; color: #555; }
+@media (max-width: 560px) {
+  .tests td:nth-child(3) { font-size: 0.82rem; }
+}
