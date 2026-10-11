@@ -28,7 +28,7 @@
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Web",
   "url": "https://simondepussay.com/jlpt-etude.html",
-  "sameAs": ["https://purple-flower-00ac22900.5.azurestaticapps.net"],
+  "sameAs": ["https://jlpt.simondepussay.com"],
   "inLanguage": ["fr", "en", "ja"],
   "author": { "@type": "Person", "name": "Simon Depussay", "url": "https://simondepussay.com/" },
   "description": "Web app with a daily JLPT N1 lesson (kanji, vocabulary, grammar). Azure Static Web Apps, Azure Functions, Azure Blob Storage, Google sign-in, 62 automated tests, tested rollback and monitoring."
@@ -46,7 +46,7 @@
     <p>JLPT N1の漢字・語彙・文法を、毎日自動で作られる短いレッスンで学ぶWebアプリです。試験日と勉強できる日数から、その日にやる量と時間を計算します。<br>
       <span class="en">A web app to prepare the JLPT N1 (kanji, vocabulary, grammar) with a short lesson built automatically every day. It works out how much to do, and how long it will take, from the exam date and the days you can study.</span></p>
     <div class="liens">
-      <a href="https://purple-flower-00ac22900.5.azurestaticapps.net" target="_blank" rel="noopener">アプリを開く / Open the app</a>
+      <a href="https://jlpt.simondepussay.com" target="_blank" rel="noopener">アプリを開く / Open the app</a>
     </div>
   </header>
 
@@ -198,8 +198,8 @@
 
     <div class="qa">
       <h3>アーキテクチャは？ <span class="en">Architecture?</span></h3>
-      <p>上の図のとおりです。APIは4つのルートだけ。同じアカウントを2台で使っても、ETagで競合を検出し、決めたルールでマージするので、データは失われません。<br>
-        <span class="en">See the diagram above. The API has only four routes. When the same account is used on two devices, ETags detect the conflict and the data is merged with defined rules, so nothing is lost.</span></p>
+      <p>上の図のとおりです。アドレスは jlpt.simondepussay.com（CloudflareのDNSからAzureへのCNAME、証明書はAzureが自動更新）。APIは4つのルートだけ。同じアカウントを2台で使っても、ETagで競合を検出し、決めたルールでマージするので、データは失われません。<br>
+        <span class="en">See the diagram above. The address is jlpt.simondepussay.com (a CNAME from Cloudflare DNS to Azure, with a certificate renewed automatically by Azure). The API has only four routes. When the same account is used on two devices, ETags detect the conflict and the data is merged with defined rules, so nothing is lost.</span></p>
     </div>
 
     <div class="qa">
