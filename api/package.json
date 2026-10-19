@@ -1,0 +1,6 @@
+{
+  "name": "simondepussay-api",
+  "private": true,
+  "main": "src/functions/*.js",
+  "dependencies": { "@azure/functions": "^4.5.0" }
+}

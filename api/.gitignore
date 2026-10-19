@@ -1,0 +1,3 @@
+node_modules/
+# Copie de agent/profil.md faite par deployer.sh : reste hors du dépôt
+profil.md

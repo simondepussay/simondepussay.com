@@ -16,31 +16,34 @@
 ブラウザ / Browser
    │  HTTPS
    ▼
-Azure App Service (Node.js 22)  ── server.js
-   │  ├─ public/          静的ファイル / static pages
-   │  └─ POST /api/chat   AIアシスタント / AI assistant
-   │        マネージドID（秘密鍵なし）/ managed identity, no secret key
+Azure Static Web Apps (Free)
+   │  ├─ public/          静的ファイル（CDN）/ static pages (CDN)
+   │  └─ POST /api/chat   Azure Function (Node 20) ── api/
+   │        APIキーはサーバー側の設定のみ / key kept in server-side app settings
    ▼
 Azure OpenAI (gpt-5-mini)
 ```
 
 ## 技術的なポイント / Technical choices
 
-- **依存パッケージなし / Zero dependencies** — Node.js 22 の標準機能だけで静的ファイル配信とAPIを実装。*Static files and the chat API use only built-in Node.js modules.*
-- **秘密鍵なし / No secret keys** — App Service のマネージドIDで Azure OpenAI に接続。コードにも設定にもAPIキーはありません。*The app reaches Azure OpenAI with its managed identity: no API key anywhere.*
+- **ホスティング費用ゼロ / Zero hosting cost** — 2026年10月に App Service（B1、約13ドル/月）から Static Web Apps 無料プランへ移行。ページは変わらず、ダウンタイムなし。*Moved in October 2026 from App Service (B1, about $13/month) to the Static Web Apps free plan: same pages, no downtime.*
+- **最小限の依存 / Minimal dependencies** — チャットのロジックは Node.js の標準機能だけ（`api/src/coeur.js`）。Function とローカルサーバーで同じコードを使います。*The chat logic uses only built-in Node.js modules and is shared by the Azure Function and the local dev server.*
+- **APIキーはブラウザに出さない / Key never reaches the browser** — Azure OpenAI のキーは Static Web Apps のアプリ設定にだけ保存。*The Azure OpenAI key lives only in server-side app settings.* （App Service 時代はマネージドIDでしたが、無料プランの Functions では使えません / App Service used a managed identity, which the free plan's Functions don't support.）
 - **AIの回答範囲を限定 / A grounded assistant** — プロフィール文書だけを根拠に答え、知らないことは「わからない」と答えます。*The assistant only answers from my profile document and says when it doesn't know.*
-- **使いすぎ対策 / Abuse limits** — 訪問者ごと・1日ごとのメッセージ数制限、メッセージ長の制限。*Per-visitor and daily message limits, message length limits.*
+- **使いすぎ対策 / Abuse limits** — 訪問者ごと・1日ごとのメッセージ数制限、メッセージ長の制限、モデルの1分あたりトークン上限。*Per-visitor and daily message limits, message length limits, and a tokens-per-minute cap on the model deployment.*
 - **検索エンジンとAIに対応 / Search and AI discovery** — `sitemap.xml`、`robots.txt`、構造化データ（JSON-LD）、`llms.txt`、OGP画像。*Sitemap, robots.txt, JSON-LD, llms.txt and share images.*
-- **独自ドメイン / Custom domain** — Cloudflare DNS + App Service マネージド証明書（HTTPS）。*Cloudflare DNS with an App Service managed certificate.*
+- **独自ドメイン / Custom domain** — Cloudflare DNS + Static Web Apps の無料証明書（HTTPS）。*Cloudflare DNS with a free Static Web Apps certificate.*
 
 ## 構成 / Structure
 
 | | |
 |---|---|
-| `server.js` | サーバー：静的ファイルとチャットAPI / server: static files and chat API |
+| `api/` | Azure Function：チャットAPI / chat API (`src/coeur.js` = shared logic) |
+| `server.js` | ローカル開発用サーバー / local dev server |
+| `public/staticwebapp.config.json` | Static Web Apps の設定 / Static Web Apps config |
 | `public/` | 公開ページ / public pages (HTML, CSS, JS, images) |
 | `public/chat.js` | チャットUI / chat widget |
-| `deployer.sh` | Azure へのデプロイ / deploy to Azure (zip deploy) |
+| `deployer.sh` | Azure へのデプロイ / deploy to Azure (SWA CLI) |
 | `agent/profil.md` | AIが使うプロフィール文書（このリポジトリには含めていません）/ profile document used by the assistant (not included in this repo) |
 
 ## ローカルで動かす / Run locally
