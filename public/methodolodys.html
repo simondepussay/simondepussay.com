@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodolodys — WordPressから静的サイトへ / WordPress to static site | Simon Depussay</title>
+  <meta name="description" content="Dysの子ども向け無料教材サイト（1 900点以上・5.3 GB）をWordPressから静的サイトへ移行。Migrating a free learning-resources site for dyslexic children from WordPress to a static site: Python migration pipeline, Azure Static Web Apps, Azure Blob Storage (5.3 GB).">
+  <link rel="canonical" href="https://simondepussay.com/methodolodys.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://simondepussay.com/methodolodys.html">
+  <meta property="og:site_name" content="Simon Depussay">
+  <meta property="og:title" content="Methodolodys — WordPressから静的サイトへ / WordPress to static site">
+  <meta property="og:description" content="10年分の教材（1 909ファイル・5.3 GB）を失わずに移行。Server time per page from 1.1–1.5 s to about 7 ms, no plugins, no login to attack.">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://simondepussay.com/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="photo.png">
+  <link rel="apple-touch-icon" href="photo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="kanji-otter.css">
+  <link rel="stylesheet" href="jlpt-etude.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Methodolodys (static rebuild)",
+  "url": "https://simondepussay.com/methodolodys.html",
+  "sameAs": ["https://github.com/simondepussay/methodolodys-static-site"],
+  "inLanguage": "fr",
+  "author": { "@type": "Person", "name": "Simon Depussay", "url": "https://simondepussay.com/" },
+  "description": "Migration of methodolodys.ch, a free learning-resources site for children with dyslexia (1,920 resources, 1,909 files, 5.3 GB), from WordPress + Divi to a static site: Python migration pipeline, HTML/CSS/JavaScript without framework, Azure Static Web Apps and Azure Blob Storage."
+}
+  </script>
+</head>
+<body class="etude">
+  <nav class="retour">
+    <a href="./">← ポートフォリオ / Portfolio</a>
+  </nav>
+
+  <header class="hero">
+    <p class="surtitre">Case study · Website migration</p>
+    <h1>Methodolodys</h1>
+    <p>スイスの特別支援教育の先生 Martine Jiménez さんが10年かけて作った、Dys（ディスレクシアなど）の子ども向け無料教材サイトです。WordPressで動いていたこのサイトを、教材を一つも失わずに、速くて安全な静的サイトへ作り直しました。<br>
+      <span class="en">A free learning-resources site for children with dyslexia and other « dys » disorders, built over 10 years by Martine Jiménez, a special-needs teacher in Switzerland. I rebuilt it from WordPress into a fast, secure static site, without losing a single resource.</span></p>
+    <div class="liens">
+      <a href="https://thankful-pebble-0daf47300.4.azurestaticapps.net" target="_blank" rel="noopener">新しいサイト（テスト版） / New site (test)</a>
+      <a href="https://github.com/simondepussay/methodolodys-static-site" target="_blank" rel="noopener">コード / Code (GitHub)</a>
+    </div>
+  </header>
+
+  <ul class="chiffres">
+    <li><strong>5.3 GB</strong><span>1 909ファイルをBlob Storageへ<br><span class="en">1,909 files on Azure Blob Storage</span></span></li>
+    <li><strong>1 920</strong><span>教材・63ページを移行<br><span class="en">resources and 63 pages migrated</span></span></li>
+    <li><strong>~7 ms</strong><span>ページの処理時間（旧：1.1–1.5秒）<br><span class="en">server time per page (was 1.1–1.5 s)</span></span></li>
+    <li><strong>0</strong><span>プラグイン・管理画面（旧：7）<br><span class="en">plugins and admin login (was 7)</span></span></li>
+  </ul>
+
+  <!-- 1. Pourquoi -->
+  <section>
+    <h2>1. なぜ作り直したか <span class="en">Why rebuild it</span></h2>
+    <p>見た目は動いていても、中身は古くなっていました。毎日先生や保護者が使うサイトなので、壊れる前に作り直すことにしました。<br>
+      <span class="en">The site still worked, but it was ageing underneath. Teachers and parents use it every day, so it was worth rebuilding before something broke.</span></p>
+    <ul class="decisions">
+      <li><b>技術的負債 / Technical debt</b> — サポートが終わったPHPとMySQL、7つのプラグイン（もう開発されていないものも）、更新を待つものが複数。WordPress本体、テーマ、プラグインを常に更新し続ける必要がありました。
+        <span class="en"><b>Technical debt</b> — PHP and MySQL versions past end of life, 7 plugins (some no longer maintained) and several updates pending: WordPress, the theme and every plugin needed constant upkeep.</span></li>
+      <li><b>セキュリティ / Security</b> — バックアップのセキュリティログには、管理画面への数百回のログイン失敗（総当たり攻撃）が残っていました。静的サイトには、攻撃されるログイン画面もデータベースもPHPもありません。
+        <span class="en"><b>Security</b> — the security logs in the backup showed hundreds of failed logins on the admin page (brute force). A static site has no login page, no database and no PHP to attack.</span></li>
+      <li><b>速さ / Speed</b> — 旧サイトはページごとに1.1〜1.5秒かけてPHPでHTMLを作っていました（キャッシュ込み）。新サイトは完成したファイルを返すだけなので約7ミリ秒。HTMLも33 KBから1〜3 KBに。
+        <span class="en"><b>Speed</b> — the old server spent 1.1–1.5 s building each page in PHP, even with its cache. The new one just returns ready files: about 7 ms. Page HTML went from 33 KB to 1–3 KB.</span></li>
+      <li><b>使いやすさ / Easier to use</b> — 1つの長いページに数百のPDFが並んでいたのを、テーマごとのページ、検索、プレビュー画像、Dysの人のための読みやすさ設定に分けました。
+        <span class="en"><b>Easier to use</b> — instead of long pages listing hundreds of PDFs: one page per topic, a search, preview images and reading settings for dyslexic readers.</span></li>
+    </ul>
+    <p class="note">数値：東京からcurlで計測（5回の中央値、接続時間を除く）、2026年10月。旧サイトはまだ公開中なので、セキュリティの詳細は載せていません。<br>
+      <span class="en">Figures: measured from Tokyo with curl (median of 5, connection time removed), October 2026. Security details are left out while the old site is still online.</span></p>
+  </section>
+
+  <!-- 2. Architecture -->
+  <section>
+    <h2>2. 全体の構成 <span class="en">Architecture</span></h2>
+    <p>ページ（16 MB）とダウンロード用のファイル（5.3 GB）を分けました。ページはAzure Static Web Apps、ファイルはAzure Blob Storage。どちらも管理するサーバーはありません。<br>
+      <span class="en">Pages (16 MB) and downloadable files (5.3 GB) are kept apart: pages on Azure Static Web Apps, files on Azure Blob Storage. No server to manage on either side.</span></p>
+
+    <figure class="schema">
+      <svg viewBox="0 0 800 520" role="img" aria-labelledby="archi-titre">
+        <title id="archi-titre">Methodolodys architecture: the WordPress backup is read by a Python pipeline that produces a JSON data file and HTML pages; pages are served by Azure Static Web Apps and the 1,909 downloadable files by Azure Blob Storage; the browser loads pages from one and downloads files from the other</title>
+        <defs>
+          <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="pointe"/>
+          </marker>
+        </defs>
+
+        <!-- Migration -->
+        <rect x="20" y="20" width="250" height="300" rx="16" class="riviere"/>
+        <text x="36" y="42" class="titre-groupe">移行 / Migration (Python)</text>
+        <g class="etape">
+          <rect x="36" y="58" width="218" height="56" rx="10"/>
+          <text x="145" y="82" text-anchor="middle">WordPressのバックアップ</text>
+          <text x="145" y="100" text-anchor="middle" class="petit">.wpress 12 GB · MySQL dump</text>
+          <rect x="36" y="138" width="218" height="56" rx="10"/>
+          <text x="145" y="162" text-anchor="middle">extraire.py</text>
+          <text x="145" y="180" text-anchor="middle" class="petit">Divi shortcodes → blocks · repairs</text>
+          <rect x="36" y="218" width="218" height="56" rx="10"/>
+          <text x="145" y="242" text-anchor="middle">generer_pages.py</text>
+          <text x="145" y="260" text-anchor="middle" class="petit">63 pages · 71 redirects · 404</text>
+        </g>
+        <line x1="145" y1="114" x2="145" y2="136" class="lien" marker-end="url(#fleche)"/>
+        <line x1="145" y1="194" x2="145" y2="216" class="lien" marker-end="url(#fleche)"/>
+        <text x="145" y="302" text-anchor="middle" class="petit">ressources.json · WebP previews</text>
+
+        <!-- Azure -->
+        <rect x="330" y="20" width="450" height="300" rx="16" class="groupe"/>
+        <text x="346" y="42" class="titre-groupe">Microsoft Azure (East Asia)</text>
+        <g class="azure">
+          <rect x="350" y="60" width="410" height="96" rx="12"/>
+          <text x="555" y="88" text-anchor="middle">Azure Static Web Apps (Free)</text>
+          <text x="555" y="108" text-anchor="middle" class="petit">HTML · CSS · JavaScript, no framework · 16 MB</text>
+          <text x="555" y="126" text-anchor="middle" class="petit">301 redirects · cache headers · Brotli</text>
+          <text x="555" y="144" text-anchor="middle" class="petit">search + pages built from one JSON file</text>
+          <rect x="350" y="196" width="410" height="96" rx="12"/>
+          <text x="555" y="224" text-anchor="middle">Azure Blob Storage</text>
+          <text x="555" y="244" text-anchor="middle" class="petit">1,909 files · 5.3 GB · PDF / PowerPoint / Word / video</text>
+          <text x="555" y="262" text-anchor="middle" class="petit">public read · cached 1 day · a few cents a month</text>
+          <text x="555" y="280" text-anchor="middle" class="petit">old /wp-content/uploads links forwarded here</text>
+        </g>
+        <line x1="272" y1="245" x2="348" y2="108" class="lien" marker-end="url(#fleche)"/>
+        <line x1="272" y1="255" x2="348" y2="244" class="lien pointille" marker-end="url(#fleche)"/>
+        <text x="282" y="164" class="etiquette">deploy</text>
+        <text x="282" y="272" class="etiquette">upload</text>
+
+        <!-- Navigateur -->
+        <rect x="200" y="380" width="400" height="120" rx="20" class="tel"/>
+        <text x="400" y="410" class="titre-boite" text-anchor="middle">ブラウザ / Browser</text>
+        <g class="module">
+          <rect x="220" y="426" width="170" height="56" rx="10"/>
+          <text x="305" y="450" text-anchor="middle">ページ・検索</text>
+          <text x="305" y="468" text-anchor="middle" class="petit">pages · search</text>
+          <rect x="410" y="426" width="170" height="56" rx="10"/>
+          <text x="495" y="450" text-anchor="middle">ダウンロード</text>
+          <text x="495" y="468" text-anchor="middle" class="petit">direct file links</text>
+        </g>
+        <path d="M350,130 C312,130 305,330 305,424" class="lien" fill="none" marker-end="url(#fleche)"/>
+        <line x1="640" y1="292" x2="520" y2="424" class="lien" marker-end="url(#fleche)"/>
+      </svg>
+    </figure>
+  </section>
+
+  <!-- 3. Les fichiers sur Azure -->
+  <section>
+    <h2>3. 5.3 GBのファイルをAzureへ <span class="en">5.3 GB of files on Azure</span></h2>
+    <p>このサイトの中心は、10年分の教材ファイルです。ページの中に入れると、Static Web Apps無料プランの上限（250 MB）の20倍以上になります。そこでファイルだけをBlob Storageに置き、ページからは直接リンクしています。<br>
+      <span class="en">The heart of the site is ten years of teaching files. Inside the pages they would be over 20 times the Static Web Apps free-plan limit (250 MB), so the files live on Blob Storage and the pages link to them directly.</span></p>
+
+    <div class="qa">
+      <h3>何が入っている？ <span class="en">What is stored?</span></h3>
+      <p>PDF、PowerPoint、Word、動画・音声の1 909ファイル。そのうち1 097枚は「視覚意味辞書」（単語カードとその説明）です。全教材のタイトル・場所・種類・サイズ・日付は1つのJSON（1 920件）にまとめ、ページと検索はこのJSONから作ります。<br>
+        <span class="en">1,909 PDF, PowerPoint, Word, video and audio files, including 1,097 cards of a visual-semantic dictionary (a word card and its explanation for each word). One JSON file (1,920 entries) describes every resource: title, page, section, type, size and date. Pages and search are built from it.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>どうやって確認した？ <span class="en">How was it checked?</span></h3>
+      <p>アップロード後、ローカルとAzureの全ファイルを名前とサイズで比べました（差分0）。次に、公開されたサイトの1 909個のダウンロードリンクを全部、実際にリクエストして確認しました（エラー0）。アクセント付きのファイル名（« trésor.pdf »など）も正しく開きます。<br>
+        <span class="en">After the upload I compared every file by name and size between my Mac and Azure (0 differences), then requested each of the 1,909 download links of the published site (0 errors). File names with accents, such as « trésor.pdf », open correctly.</span></p>
+    </div>
+
+    <div class="qa">
+      <h3>コストは？ <span class="en">Cost?</span></h3>
+      <p>ページはStatic Web Appsの無料プラン。ファイルの保存は月に数十円程度。ダウンロードの転送量は、無料枠（月100 GB）を超えた分だけ課金されます。<br>
+        <span class="en">Pages run on the Static Web Apps free plan. Storing the files costs a few cents a month; download traffic is only charged past the free 100 GB a month.</span></p>
+    </div>
+  </section>
+
+  <!-- 4. Migration -->
+  <section>
+    <h2>4. 失わない移行 <span class="en">A lossless migration</span></h2>
+    <ol class="flux">
+      <li>
+        <b>読む <span class="en">Read</span></b>
+        12 GBのバックアップから必要な7.2 GBだけを取り出し、MySQLダンプとページビルダーDiviのショートコードを順番どおりに解析。
+        <span class="en">Take the 7.2 GB that matter out of a 12 GB backup, then parse the MySQL dump and the Divi page-builder shortcodes in page order.</span>
+      </li>
+      <li>
+        <b>直す <span class="en">Repair</span></b>
+        文字化けしたファイル名、2つのURLがくっついたリンク、閉じていないブロック、「こちらをクリック」だけのタイトルを自動で修正。
+        <span class="en">Fix mojibake file names, links with two glued URLs, unclosed blocks and titles that only said « click here ».</span>
+      </li>
+      <li>
+        <b>補う <span class="en">Complete</span></b>
+        画像のない144の教材には、ファイルの1ページ目からプレビューを作成。旧トップページにしかなかった2つの教材も見つけて移しました。
+        <span class="en">Generate a preview from the first page of the 144 resources without an image, and recover 2 resources that only existed on the old homepage.</span>
+      </li>
+      <li>
+        <b>確かめる <span class="en">Verify</span></b>
+        全ページのリンク・画像3 000件以上、71のリダイレクト、1 909のダウンロードをスクリプトで確認してから公開。
+        <span class="en">Check 3,000+ links and images, 71 redirects and 1,909 downloads by script before publishing.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 5. Avant / après -->
+  <section>
+    <h2>5. 旧サイトと新サイト <span class="en">Before and after</span></h2>
+    <table class="tests">
+      <thead><tr><th>項目 <span class="en">Item</span></th><th>旧 <span class="en">Old</span></th><th>新 <span class="en">New</span></th></tr></thead>
+      <tbody>
+        <tr><td>仕組み <span class="en">Stack</span></td><td>WordPress · Divi · PHP · MySQL</td><td><span class="en">HTML · CSS · JavaScript · JSON</span></td></tr>
+        <tr><td>ページの処理時間 <span class="en">Server time</span></td><td>1.1 – 1.5 s</td><td><span class="en">~7 ms</span></td></tr>
+        <tr><td>HTML（圧縮後） <span class="en">HTML, compressed</span></td><td>33 KB</td><td><span class="en">1 – 3 KB</span></td></tr>
+        <tr><td>プラグイン <span class="en">Plugins</span></td><td>7</td><td><span class="en">0</span></td></tr>
+        <tr><td>管理画面 <span class="en">Admin login</span></td><td>あり / yes</td><td><span class="en">none</span></td></tr>
+        <tr><td>探し方 <span class="en">Finding a resource</span></td><td>メニューと長いページ / menus, long pages</td><td><span class="en">search, one page per topic, previews</span></td></tr>
+        <tr><td>古いURL <span class="en">Old URLs</span></td><td>—</td><td><span class="en">71 × 301 redirect</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 6. Choix -->
+  <section>
+    <h2>6. 設計で考えたこと <span class="en">Design decisions</span></h2>
+    <ul class="decisions">
+      <li><b>フレームワークなし</b> — 依頼者が将来自分で直せるように、素のHTML・CSS・JavaScriptだけ。
+        <span class="en"><b>No framework</b> — plain HTML, CSS and JavaScript, so the site stays easy to maintain later.</span></li>
+      <li><b>Dysの人のための読みやすさ</b> — OpenDyslexicフォント、文字サイズ、行間をワンクリックで変更。フォントは選んだ人にだけ読み込みます。
+        <span class="en"><b>Built for dyslexic readers</b> — one-click OpenDyslexic font, text size and spacing; the font is only downloaded by those who choose it.</span></li>
+      <li><b>古いリンクを守る</b> — 10年分の共有リンクやブックマークが切れないよう、旧URLを新しいページへ301リダイレクト。古いPDFへの直接リンクも転送します。
+        <span class="en"><b>Keep old links alive</b> — ten years of shared links and bookmarks keep working: old URLs are 301-redirected, old direct PDF links forwarded.</span></li>
+      <li><b>テスト中は検索に出さない</b> — 同じ内容のサイトが2つ検索に出ないよう、テスト版には noindex を付けています。
+        <span class="en"><b>Hidden from search engines while in test</b> — the test version sends noindex, so search engines never see two copies of the same site.</span></li>
+    </ul>
+  </section>
+
+  <!-- 7. Pas encore -->
+  <section>
+    <h2>7. まだやっていないこと <span class="en">Not done yet</span></h2>
+    <p>依頼者の確認を待っているテスト版です。<b>まだのこと</b>：methodolodys.ch のドメインの切り替え、利用者に近いヨーロッパのリージョンへの移動（いまは学生用サブスクリプションの制限で東アジア）、編集を簡単にするための更新手順の整備。<br>
+      <span class="en">This is a test version waiting for the owner's review. <b>Not in place yet</b>: switching the methodolodys.ch domain, moving to a European region closer to its users (East Asia for now, because of the student subscription's region policy), and a simpler update workflow for the content.</span></p>
+  </section>
+
+  <!-- 8. How it was built -->
+  <section>
+    <h2>8. 作り方と学んだこと <span class="en">How it was built, what I learned</span></h2>
+    <p>Claude Code（AIのコーディングエージェント）と一緒に作りました。移行の方針、ページの構成、何を残して何を直すか、公開の判断は私が決め、毎回ブラウザで確認しました。大きな移行では、作ることより「何も失っていない」と証明することのほうが大事だと学びました。<br>
+      <span class="en">Built with Claude Code, an AI coding agent. I decided the migration plan, the page structure, what to keep and what to fix, checked every change in the browser and made the publishing decisions. On a large migration, proving that nothing was lost matters more than building fast.</span></p>
+  </section>
+
+  <footer class="pied">
+    <a href="./">← ポートフォリオに戻る / Back to portfolio</a>
+  </footer>
+
+  <button type="button" class="chat-bouton" id="ask-ai">
+    <img src="robot.png" alt="">
+    <span><strong>AIに質問</strong><br>Ask AI</span>
+  </button>
+
+  <script src="chat.js" defer></script>
+</body>
+</html>

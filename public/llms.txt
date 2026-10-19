@@ -39,15 +39,16 @@ The website also has an AI assistant that answers questions about Simon.
 
 - iOS: Swift, UIKit, SwiftUI, StoreKit 2, WidgetKit, Vision
 - Web: HTML, CSS, JavaScript, Node.js, TypeScript, WordPress
-- Cloud: Azure Functions, Azure Cosmos DB, Azure App Service, Azure Static Web Apps, Azure OpenAI, Microsoft Entra ID
+- Cloud: Azure Functions, Azure Cosmos DB, Azure App Service, Azure Static Web Apps, Azure Blob Storage, Azure OpenAI, Microsoft Entra ID
 - Business: marketing (main subject during the exchange at Keio University), Excel (basics), Adobe Creative Cloud
-- Other: Java, SQL, Firebase, Google AdMob, Git, Xcode
+- Other: Python, Java, SQL, Firebase, Google AdMob, Git, Xcode
 
 ## Projects
 
 - [Kanji Otter — How it's built](https://simondepussay.com/kanji-otter.html): iPhone app to learn JLPT kanji (N5 to N1), developed since 2024 and improved with user feedback, 600+ downloads, 6 languages. Swift app with offline-first progress, accounts with Microsoft Entra External ID, cloud save through an Azure Functions API (Node/TypeScript) and Azure Cosmos DB, StoreKit 2 subscriptions, Google AdMob rewarded ads, Firebase Analytics. The same structure is reused for two more apps in progress (English vocabulary, Japanese grammar).
 - [Kanji Otter on the App Store](https://apps.apple.com/us/app/jlpt-kanji-otter-adventure/id6497395953)
 - [JLPT Étude — How it's built and run](https://simondepussay.com/jlpt-etude.html): web app that builds a daily JLPT N1 lesson (3,315 words, 1,232 kanji, 90 grammar points, French and English). Planning from the exam date and study days per week, spaced repetition, real-pace detection. Serverless on Azure (Static Web Apps + Azure Functions + Blob Storage), offline first, Google sign-in without passwords, ETag conflict merge between devices. 62 automated tests run before every deploy, post-deploy verification, PR preview environments, rollback measured at 2 minutes, 30-day versioned backups, health check every 30 minutes, Application Insights. Built with Claude Code as a coding agent.
+- [Methodolodys — How it was migrated](https://simondepussay.com/methodolodys.html): migration of methodolodys.ch, a free learning-resources site for children with dyslexia built over 10 years by a special-needs teacher in Switzerland, from WordPress + Divi to a static site. 1,920 resources and 63 pages migrated without loss; 1,909 downloadable files (5.3 GB: PDF, PowerPoint, Word, video) on Azure Blob Storage, pages on Azure Static Web Apps (HTML/CSS/JavaScript, no framework). Python pipeline reading the .wpress backup and MySQL dump, parsing Divi shortcodes, repairing broken links and mojibake file names, generating previews; 71 old URLs 301-redirected; every link and all 1,909 downloads verified by script. Why: technical debt (PHP and MySQL past end of life, 7 plugins), security (no admin login or database to attack), speed (server time per page from 1.1–1.5 s to about 7 ms), and easier navigation (search, one page per topic, reading settings with the OpenDyslexic font). Test version waiting for the owner's review. Code: https://github.com/simondepussay/methodolodys-static-site
 - [Kota Illustrator website](https://gray-cliff-055dc5d00.5.azurestaticapps.net/): artist website for the Japanese illustrator こた, responsive (desktop and smartphone), Azure Static Web Apps.
 - [Porco Rosso fan website](https://ambitious-rock-08ecb2600.5.azurestaticapps.net/): fan website for the Studio Ghibli film 紅の豚, desktop format, Azure Static Web Apps.
 - [This portfolio](https://simondepussay.com): Node.js on Azure App Service, with an AI assistant on Azure OpenAI using a managed identity (no secret keys).
