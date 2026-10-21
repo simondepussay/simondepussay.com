@@ -14,7 +14,7 @@ The website also has an AI assistant that answers questions about Simon.
 - Role: iOS & web developer
 - Looking for: internships and jobs, open to all kinds of projects
 - Languages: French (native), Japanese (JLPT N2), English (TOEIC 925)
-- Certifications: Bachelor in International Relations (University of Geneva), JLPT N2, TOEIC 925, Microsoft AZ-900, Microsoft AI-901
+- Certifications: Bachelor in International Relations (University of Geneva), JLPT N2, TOEIC 925, Microsoft AZ-900, Microsoft AI-901, J-Ken Information Systems Exam – System Design Skills (J検 情報システム試験 システムデザインスキル, passed October 2026: system strategy, system development, networks, databases, security)
 
 ## Background
 
