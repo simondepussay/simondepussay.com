@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clean Work — 設計と運用 / How it's built and run | Simon Depussay</title>
+  <meta name="description" content="就活を一か所にまとめるアプリ Clean Work（Web・iPhone・iPad）の設計と運用。How the Clean Work job-hunting app is built: Azure Static Web Apps, Azure Functions, Cosmos DB, Azure OpenAI, SwiftUI, open government data, 411 automated tests, a TestFlight beta and a ¥3,000 monthly AI budget.">
+  <link rel="canonical" href="https://simondepussay.com/clean-work.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://simondepussay.com/clean-work.html">
+  <meta property="og:site_name" content="Simon Depussay">
+  <meta property="og:title" content="Clean Work — 迷わない毎日へ。">
+  <meta property="og:description" content="日本人も外国人も使える就活アプリ。A job-hunting app for Japanese and international students: web, iPhone and iPad, AI feedback, open data, 411 automated tests.">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://simondepussay.com/clean-work/web-accueil.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="photo.png">
+  <link rel="apple-touch-icon" href="photo.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="kanji-otter.css">
+  <link rel="stylesheet" href="jlpt-etude.css">
+  <link rel="stylesheet" href="clean-work.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Clean Work",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web, iOS, iPadOS",
+  "url": "https://simondepussay.com/clean-work.html",
+  "sameAs": ["https://cleanwork.simondepussay.com"],
+  "inLanguage": ["ja", "en", "fr"],
+  "author": { "@type": "Person", "name": "Simon Depussay", "url": "https://simondepussay.com/" },
+  "description": "Job-hunting app for Japanese and international students in Japan: applications and deadlines, AI entry-sheet review, AI mock interviews, résumé PDFs, open government data on companies. Web (React), iPhone and iPad (SwiftUI), Azure Static Web Apps, Azure Functions, Cosmos DB, Azure OpenAI, 411 automated tests."
+}
+  </script>
+</head>
+<body class="etude">
+  <nav class="retour">
+    <a href="./">← ポートフォリオ / Portfolio</a>
+  </nav>
+
+  <header class="hero">
+    <p class="surtitre">Case study · Web · iPhone · iPad</p>
+    <h1>Clean Work</h1>
+    <p class="slogan">迷わない毎日へ。<span class="en"> Toward days without feeling lost.</span></p>
+    <p>就活に必要なもの（応募と締切、ES、面接練習、履歴書、ニュース）を一か所にまとめたアプリです。日本人も外国人も使えます。アプリが増えすぎて迷う、という問題をなくすことが出発点でした。<br>
+      <span class="en">An app that gathers everything a job hunt in Japan needs (applications and deadlines, entry sheets, interview practice, résumés, news) in one place, for Japanese and international students alike. The starting point: too many apps, and getting lost between them.</span></p>
+    <div class="liens">
+      <a href="https://cleanwork.simondepussay.com" target="_blank" rel="noopener" class="principal">アプリを開く / Open the app</a>
+      <a href="https://cleanwork.simondepussay.com/#beta" target="_blank" rel="noopener">iPhone βテスト / iPhone beta</a>
+    </div>
+  </header>
+
+  <ul class="chiffres">
+    <li><strong>411</strong><span>自動テスト<br><span class="en">automated tests (API 211 · web 120 · iOS 80)</span></span></li>
+    <li><strong>3</strong><span>画面（Web・iPhone・iPad）<br><span class="en">platforms (web, iPhone, iPad)</span></span></li>
+    <li><strong>¥3,000</strong><span>AIの月の上限<br><span class="en">monthly AI budget, hard cap</span></span></li>
+    <li><strong>3</strong><span>言語（日・英・仏）<br><span class="en">languages (ja, en, fr)</span></span></li>
+  </ul>
+
+  <div class="galerie">
+    <figure class="large">
+      <img src="clean-work/web-accueil.jpg" width="1280" height="860" alt="Clean Work web home: binder-style tabs, a ticket for the next interview with the weather at the venue, a goal ticket and a large calendar">
+      <figcaption>ホーム：次の面接（会場の天気つき）と目標、カレンダー。<span class="en">Home: the next interview (with the weather at the venue), a goal, and the calendar.</span></figcaption>
+    </figure>
+    <figure class="tiers">
+      <img src="clean-work/ios-accueil.jpg" width="600" height="1304" alt="iPhone home screen with the same tickets and calendar">
+      <figcaption>iPhone（SwiftUI）<span class="en">iPhone, native SwiftUI</span></figcaption>
+    </figure>
+    <figure class="tiers">
+      <img src="clean-work/ios-ouverture.jpg" width="600" height="1304" alt="iPhone launch screen with the logo, the name and the slogan">
+      <figcaption>起動画面 <span class="en">Launch screen</span></figcaption>
+    </figure>
+    <figure class="tiers">
+      <img src="clean-work/pub-notification.jpg" width="540" height="960" alt="Frame from the anime-style ad: the student reads the Clean Work notification one hour before her interview">
+      <figcaption>紹介動画（面接1時間前の通知）<span class="en">From the launch video: the notification one hour before the interview</span></figcaption>
+    </figure>
+  </div>
+
+  <!-- 1. Architecture -->
+  <section>
+    <h2>1. 全体の構成 <span class="en">Architecture</span></h2>
+    <p>Web（React）とiPhone・iPad（SwiftUI）が同じAPIを使います。サーバーは自分で管理せず、すべてAzureのマネージドサービス。秘密の鍵はサーバー側だけに置き、ブラウザやアプリには出しません。<br>
+      <span class="en">The web app (React) and the iPhone/iPad app (SwiftUI) share one API. No servers to manage: everything runs on Azure managed services, and every secret key stays on the server side, never in the browser or the app.</span></p>
+
+    <figure class="schema">
+      <svg viewBox="0 0 800 600" role="img" aria-labelledby="cw-archi">
+        <title id="cw-archi">Clean Work architecture: web app and iOS app call an Azure Functions API on Azure Static Web Apps, which uses Cosmos DB, Azure OpenAI, Entra External ID, Apple push notifications and open data services; GitHub Actions runs tests, deploys, checks and scheduled jobs</title>
+        <defs>
+          <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pointe"/></marker>
+        </defs>
+        <rect x="20" y="20" width="230" height="150" rx="18" class="tel"/>
+        <text x="135" y="50" class="titre-boite" text-anchor="middle">Web</text>
+        <text x="135" y="72" class="petit" text-anchor="middle">React 19 · Vite · TypeScript</text>
+        <text x="135" y="96" class="petit" text-anchor="middle">PC · スマホ / phone</text>
+        <text x="135" y="120" class="petit" text-anchor="middle">MSAL (sign-in) · 60 s read cache</text>
+        <text x="135" y="144" class="petit" text-anchor="middle">tab code loaded on first use</text>
+        <rect x="20" y="190" width="230" height="160" rx="18" class="tel"/>
+        <text x="135" y="220" class="titre-boite" text-anchor="middle">iPhone · iPad</text>
+        <text x="135" y="242" class="petit" text-anchor="middle">SwiftUI · XcodeGen · MSAL</text>
+        <text x="135" y="266" class="petit" text-anchor="middle">local reminders (1 h before)</text>
+        <text x="135" y="290" class="petit" text-anchor="middle">voice answers: SFSpeech</text>
+        <text x="135" y="314" class="petit" text-anchor="middle">PDFKit (CV import)</text>
+        <text x="135" y="338" class="petit" text-anchor="middle">TestFlight beta</text>
+
+        <rect x="300" y="20" width="480" height="330" rx="16" class="groupe"/>
+        <text x="316" y="42" class="titre-groupe">Microsoft Azure</text>
+        <g class="azure">
+          <rect x="320" y="56" width="440" height="74" rx="12"/>
+          <text x="540" y="82" text-anchor="middle">Azure Static Web Apps (Free)</text>
+          <text x="540" y="102" text-anchor="middle" class="petit">site + Azure Functions API (Node 22, TypeScript)</text>
+          <text x="540" y="120" text-anchor="middle" class="petit">cleanwork.simondepussay.com · Cloudflare DNS</text>
+          <rect x="320" y="146" width="210" height="62" rx="12"/>
+          <text x="425" y="172" text-anchor="middle">Cosmos DB</text>
+          <text x="425" y="192" text-anchor="middle" class="petit">serverless · partition per user</text>
+          <rect x="550" y="146" width="210" height="62" rx="12"/>
+          <text x="655" y="172" text-anchor="middle">Azure OpenAI</text>
+          <text x="655" y="192" text-anchor="middle" class="petit">gpt-5-mini · structured output</text>
+          <rect x="320" y="224" width="210" height="62" rx="12"/>
+          <text x="425" y="250" text-anchor="middle">Entra External ID</text>
+          <text x="425" y="270" text-anchor="middle" class="petit">accounts · 30-day deletion</text>
+          <rect x="550" y="224" width="210" height="62" rx="12"/>
+          <text x="655" y="250" text-anchor="middle">Application Insights</text>
+          <text x="655" y="270" text-anchor="middle" class="petit">0.1 GB/day cap · 5xx alert</text>
+          <text x="540" y="320" text-anchor="middle" class="petit">secrets only in server settings (OpenAI, APNs, gBizINFO)</text>
+        </g>
+        <line x1="252" y1="95" x2="318" y2="95" class="lien" marker-start="url(#f)" marker-end="url(#f)"/>
+        <line x1="252" y1="270" x2="318" y2="110" class="lien" marker-start="url(#f)" marker-end="url(#f)"/>
+
+        <g class="service">
+          <rect x="20" y="380" width="230" height="56" rx="12"/>
+          <text x="135" y="404" text-anchor="middle">Apple Push (APNs)</text>
+          <text x="135" y="422" text-anchor="middle" class="petit">HTTP/2 · ES256 token, no SDK</text>
+          <rect x="20" y="452" width="230" height="128" rx="12"/>
+          <text x="135" y="476" text-anchor="middle">公的・オープンデータ</text>
+          <text x="135" y="494" text-anchor="middle">Open data</text>
+          <text x="135" y="514" text-anchor="middle" class="petit">gBizINFO (METI) · 国土地理院</text>
+          <text x="135" y="532" text-anchor="middle" class="petit">Open-Meteo · holidays-jp</text>
+          <text x="135" y="550" text-anchor="middle" class="petit">zipcloud · RSS (厚労省, NHK,</text>
+          <text x="135" y="568" text-anchor="middle" class="petit">JETRO, Japan Times)</text>
+        </g>
+        <path d="M300,330 C270,360 270,380 252,400" class="lien pointille" marker-end="url(#f)"/>
+        <path d="M300,340 C280,420 270,470 252,500" class="lien pointille" marker-end="url(#f)"/>
+
+        <rect x="290" y="380" width="490" height="200" rx="16" class="riviere"/>
+        <text x="306" y="402" class="titre-groupe">GitHub Actions</text>
+        <g class="etape">
+          <rect x="306" y="414" width="146" height="56" rx="10"/>
+          <text x="379" y="438" text-anchor="middle">① Test</text>
+          <text x="379" y="456" text-anchor="middle" class="petit">API + web tests</text>
+          <rect x="466" y="414" width="146" height="56" rx="10"/>
+          <text x="539" y="438" text-anchor="middle">② Deploy</text>
+          <text x="539" y="456" text-anchor="middle" class="petit">version stamp</text>
+          <rect x="626" y="414" width="140" height="56" rx="10"/>
+          <text x="696" y="438" text-anchor="middle">③ Smoke test</text>
+          <text x="696" y="456" text-anchor="middle" class="petit">live site checked</text>
+        </g>
+        <line x1="452" y1="442" x2="464" y2="442" class="lien" marker-end="url(#f)"/>
+        <line x1="612" y1="442" x2="624" y2="442" class="lien" marker-end="url(#f)"/>
+        <text x="535" y="500" text-anchor="middle" class="petit">every 2 h: smoke test · 8:00 JST: push reminders + news digest</text>
+        <text x="535" y="522" text-anchor="middle" class="petit">9:00 JST: new beta requests → GitHub issue (e-mail)</text>
+        <text x="535" y="544" text-anchor="middle" class="petit">Monday 9:00 JST: weekly cost report → GitHub issue (e-mail)</text>
+        <line x1="540" y1="380" x2="540" y2="352" class="lien pointille" marker-end="url(#f)"/>
+      </svg>
+    </figure>
+  </section>
+
+  <!-- 2. APIs -->
+  <section>
+    <h2>2. APIの選び方 <span class="en">Choosing the APIs</span></h2>
+    <p>基準は3つ：無料か安いこと、公的または規約で使ってよいこと、送るデータが最小限であること。外部サービスには、必要な項目だけをサーバーから送ります（名前やメールは送りません）。<br>
+      <span class="en">Three rules: free or cheap, official or explicitly allowed by its terms, and the least data possible. External services are called from the server with only the field they need (never a name or an e-mail).</span></p>
+    <table class="apis">
+      <thead><tr><th>API</th><th>何に使うか・なぜ <span class="en">What for, and why</span></th></tr></thead>
+      <tbody>
+        <tr><td>Azure OpenAI</td><td>ESの添削、模擬面接、CVの読み込み、毎日のニュース選び。JSONスキーマで答えの形を固定し、引用が本文にあるかをサーバーで確認します。<span class="en">Entry-sheet review, mock interviews, CV import and the daily news digest. A JSON schema fixes the shape of every answer, and the server checks that quoted passages really exist in the text.</span></td></tr>
+        <tr><td>Entra External ID</td><td>アカウント（メールとパスワード）。パスワードを自分で保存しないため。削除は30日間の猶予つき。<span class="en">Accounts (email and password) without storing passwords myself. Account deletion with a 30-day grace period.</span></td></tr>
+        <tr><td>APNs</td><td>締切の通知。有料の通知サービスを使わず、Appleに直接（HTTP/2とES256のトークン）。<span class="en">Deadline notifications, sent straight to Apple (HTTP/2 with an ES256 token) instead of a paid push service.</span></td></tr>
+        <tr><td>gBizINFO（経済産業省）</td><td>応募先の公式データ：くるみん・えるぼし・ユースエールなどの国の認定と、残業時間・平均勤続年数・女性管理職・男性の育休。学生が企業を選ぶ判断材料になります。<span class="en">Official company data: government labels (Kurumin, Eruboshi, Youth Yell…) and workplace figures (overtime, tenure, women managers, paternity leave), so students can judge an employer.</span></td></tr>
+        <tr><td>国土地理院 + Open-Meteo</td><td>面接会場（なければ本社、自宅）の住所を位置に変換し、当日の天気を表示。面接1時間前の通知に「傘を忘れずに」。<span class="en">The interview venue (else the head office, else home) is turned into coordinates for that day's forecast; the reminder an hour before adds “take an umbrella”.</span></td></tr>
+        <tr><td>holidays-jp · zipcloud</td><td>カレンダーの祝日と、郵便番号から住所の自動入力（履歴書）。<span class="en">Public holidays in the calendar, and the address filled in from the postal code (résumé).</span></td></tr>
+        <tr><td>RSS</td><td>厚生労働省・NHK・JETRO・Japan Times。AIが毎日5件を選び、3言語で要約。<span class="en">Ministry of Labour, NHK, JETRO and The Japan Times; the AI picks 5 items a day and summarises them in three languages.</span></td></tr>
+        <tr class="non"><td>使わなかったもの<br>Not used</td><td>求人サイトのスクレイピング（規約違反）、ハローワークAPI（職業紹介事業者向け）、Jooble・Careerjet（日本では知名度が低く、ロボット対策で品質を確認できない）。かわりに主要な求人サイトへのリンクを置きました。<span class="en">Scraping job boards (against their terms), the Hello Work API (for employment agencies only), Jooble and Careerjet (little known in Japan, and anti-bot walls made their quality impossible to check). The app links to the main job sites instead.</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. Design -->
+  <section>
+    <h2>3. デザイン <span class="en">Design</span></h2>
+    <p>白・何段階かの青・ボルドーの3色。アイコンはすべて手描きのSVGで、絵文字は使いません。表示はいつも1つの言語だけ（日本語・英語・フランス語を地球儀で切り替え）。説明文は増やさず、画面を静かに保つことを優先しました。<br>
+      <span class="en">White, several blues and a bordeaux accent. Every icon is a hand-drawn SVG, never an emoji. The interface always shows a single language (Japanese, English or French, switched with the globe), and explanatory text is kept to a minimum to keep screens calm.</span></p>
+    <ul class="decisions">
+      <li><b>バインダーのインデックス</b> — タブは楕円形の頭をもつ仕切り。選んだタブは紙と一体になります。<span class="en"><b>Binder tabs</b> — tabs shaped like elliptical binder dividers; the selected one merges with the sheet.</span></li>
+      <li><b>カレンダーがホーム</b> — 面接・締切・予定・目標・メモを大きな月表示に。クリックでメモ、マウスを乗せると中身。<span class="en"><b>The calendar is the home page</b> — interviews, deadlines, events, goals and notes on a large month view; click to add a note, hover to preview.</span></li>
+      <li><b>チケット型の囲み</b> — 次の面接と目標は、日付の半券・ミシン目・切り落とした角。<span class="en"><b>Ticket cards</b> — the next interview and goal use a date stub, a perforated line and a cut corner.</span></li>
+      <li><b>波の背景</b> — 細い同心円の線を、Web・アプリ・起動画面・紹介動画で共通に。<span class="en"><b>Wave background</b> — thin concentric lines shared by the web app, the iOS app, the launch screen and the video.</span></li>
+      <li><b>Web・iPhone・iPad</b> — WebはPCとスマホに対応。iOSはSwiftUIで作り直し、iPadではカレンダーの横にその日の予定と目標を並べます。<span class="en"><b>Web, iPhone, iPad</b> — the web app adapts to desktop and phone; the iOS app was rebuilt natively in SwiftUI, and on iPad the day's plan and goals sit beside the calendar.</span></li>
+    </ul>
+    <div class="galerie">
+      <figure class="moitie">
+        <img src="clean-work/ipad-accueil.jpg" width="1000" height="1333" alt="iPad home screen: tickets, calendar, and the day panel next to the goals">
+        <figcaption>iPad <span class="en">iPad layout</span></figcaption>
+      </figure>
+      <figure class="moitie">
+        <img src="clean-work/web-candidatures.jpg" width="1280" height="860" alt="Applications board with columns from interested to offer, a search field and an applied filter">
+        <figcaption>応募のボード（検索・応募済み一覧）<span class="en">Applications board, with search and the list of applications awaiting a reply</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 4. Costs -->
+  <section>
+    <h2>4. 費用をおさえる工夫 <span class="en">Keeping costs down</span></h2>
+    <p>変動する費用はAIだけです。それ以外は無料プランか、使った分だけの課金です。<br>
+      <span class="en">The only cost that varies is the AI. Everything else runs on free plans or pay-per-use.</span></p>
+    <ul class="budget">
+      <li><b>AIの上限 <span class="en">AI caps</span></b>月¥3,000で自動停止。ES添削は1日10回・月30回、面接練習は1日3回・月20回。失敗した呼び出しは回数に数えません。<span class="en">A ¥3,000 monthly cap that stops AI calls; entry-sheet reviews limited to 10 a day and 30 a month, interviews to 3 a day and 20 a month. Failed calls are not counted.</span></li>
+      <li><b>無料・従量課金 <span class="en">Free and pay-per-use</span></b>Static Web Apps 無料プラン、Cosmos DB サーバーレス、gpt-5-mini。毎日のニュース要約は1日約0.55円。<span class="en">Static Web Apps free plan, serverless Cosmos DB, gpt-5-mini; the daily news digest costs about ¥0.55.</span></li>
+      <li><b>キャッシュ <span class="en">Caching</span></b>ファイルは1年キャッシュ、APIの読み取りは60秒、天気・祝日・企業データはサーバーで数時間〜1日。<span class="en">Static files cached for a year, API reads for 60 s, weather, holidays and company data on the server for hours to a day.</span></li>
+      <li><b>毎週の費用メール <span class="en">Weekly cost e-mail</span></b>月曜の朝、その週のAIの費用と残りの予算が届きます。ログは1日0.1 GBまで。<span class="en">Every Monday morning, the week's AI cost and the remaining budget arrive by e-mail; logs are capped at 0.1 GB a day.</span></li>
+      <li><b>通知の分担 <span class="en">Splitting the reminders</span></b>サーバーの通知は1日1回（朝8時）。面接1時間前の通知は、15分ごとのジョブが無料枠を超えるため、iPhoneが自分で予約します。<span class="en">Server notifications run once a day (8:00). The reminder an hour before an interview is scheduled by the iPhone itself, because a job every 15 minutes would exceed the free CI quota.</span></li>
+      <li><b>作らなかったもの <span class="en">What I didn't build</span></b>常時起動のサーバー、有料の通知サービス、有料の求人API。<span class="en">No always-on server, no paid push service, no paid job-listing API.</span></li>
+    </ul>
+  </section>
+
+  <!-- 5. Tests -->
+  <section>
+    <h2>5. テスト <span class="en">Tests</span></h2>
+    <p><code>main</code>にプッシュすると、APIとWebのテスト → デプロイ → 本番サイトの確認が自動で走ります。本番は2時間ごとにも確認し、失敗するとメールが届きます。<br>
+      <span class="en">A push to <code>main</code> runs the API and web tests → deploy → a smoke test of the live site. The live site is also checked every 2 hours, with an e-mail on failure.</span></p>
+    <table class="tests">
+      <thead><tr><th>分類 <span class="en">Area</span></th><th>数 <span class="en">Count</span></th><th>例 <span class="en">Examples</span></th></tr></thead>
+      <tbody>
+        <tr><td>API</td><td>211</td><td><span class="en">users can't read each other's data, AI limits and budget, quotes checked against the text, reminders sent once a day even if the job reruns, account deletion, open-data parsing, beta sign-up anti-spam, a full user journey</span></td></tr>
+        <tr><td>Web</td><td>120</td><td><span class="en">every screen in one language at a time, calendar and quick notes, application board, profile and CV import, holidays and weather, sign-in errors, no blank page after a deploy</span></td></tr>
+        <tr><td>iOS</td><td>80</td><td><span class="en">reminders (the day before, the same day, one hour before an interview with weather advice), push registration, API client, profile, CV import, agenda</span></td></tr>
+      </tbody>
+    </table>
+    <p class="note">AIはテストでは偽物に置き換え、本物のAIは手で確認します（CVの読み込みなど）。画面の見た目と実機での通しテストは、確認リストを作って手作業で行っています。<br>
+      <span class="en">The AI is replaced by a fake in tests and checked by hand for real (CV import, for example). Visual rendering and end-to-end checks on real devices follow a written manual checklist.</span></p>
+  </section>
+
+  <!-- 6. Beta -->
+  <section>
+    <h2>6. iPhoneアプリのβテスト <span class="en">The iPhone beta</span></h2>
+    <ol class="flux">
+      <li><b>申し込み <span class="en">Sign up</span></b>サイトのどのページの下にもリンク。Appleアカウントのメールと端末を送るだけ（アカウント不要）。<span class="en">A link at the bottom of every page; send your Apple Account e-mail and device, no account needed.</span></li>
+      <li><b>受け取り <span class="en">Collect</span></b>毎朝9時、新しい申し込みがGitHubのissueにまとまり、メールで届きます。<span class="en">Every morning at 9, new requests are listed in a GitHub issue that arrives by e-mail.</span></li>
+      <li><b>招待 <span class="en">Invite</span></b>App Store Connectの外部テスターに追加すると、AppleがTestFlightの招待を送ります。<span class="en">Adding them as external testers in App Store Connect makes Apple send the TestFlight invitation.</span></li>
+      <li><b>感想 <span class="en">Feedback</span></b>アプリでスクリーンショットを撮り、TestFlightから送信。<span class="en">Testers take a screenshot in the app and send it through TestFlight.</span></li>
+    </ol>
+    <p class="note">申し込みフォームは同意のチェックが必須、同じメールは1回だけ、1つの接続から1日5回まで、ロボット用の見えない入力欄つき。メールは180日後に自動で削除されます。<br>
+      <span class="en">The form requires consent, keeps one request per address, allows 5 a day per connection and has an invisible field that catches bots. Addresses are deleted automatically after 180 days.</span></p>
+  </section>
+
+  <!-- 7. How it was built -->
+  <section>
+    <h2>7. 作り方と学んだこと <span class="en">How it was built, what I learned</span></h2>
+    <p>Claude Code（AIのコーディングエージェント）と一緒に作りました。何を作るか、名前とスローガン、デザイン、使うAPI、費用の上限、βテストの進め方を決め、毎回動作を確認したのは私です。紹介動画も、AIで作った場面と声に、構成・字幕・音量の調整を加えて仕上げました。学んだのは、機能を増やすことより、迷わせない画面と、費用と個人情報を守る仕組みを先に決めることの大切さです。<br>
+      <span class="en">Built with Claude Code, an AI coding agent. I decided what to build, the name and slogan, the design, which APIs to use, the cost limits and how the beta runs, and I checked every change. The launch video combines AI-generated scenes and voice with my own structure, subtitles and sound mix. The main lesson: before adding features, decide on calm screens and on the safeguards for cost and personal data.</span></p>
+    <div class="galerie">
+      <figure class="tiers">
+        <img src="clean-work/pub-isogashikute.jpg" width="540" height="960" alt="Frame from the launch video: the student at her part-time job with the caption 忙しくて、忙しくて、忙しくて、">
+        <figcaption>紹介動画「忙しくて、」<span class="en">Launch video: “so busy…”</span></figcaption>
+      </figure>
+      <figure class="deux-tiers">
+        <img src="clean-work/web-beta.jpg" width="1280" height="860" alt="Beta sign-up page: steps to join with TestFlight on the left, form on the right">
+        <figcaption>βテストの申し込みページ <span class="en">Beta sign-up page</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <footer class="pied">
+    <a href="./">← ポートフォリオに戻る / Back to portfolio</a>
+  </footer>
+
+  <button type="button" class="chat-bouton" id="ask-ai">
+    <img src="robot.png" alt="">
+    <span><strong>AIに質問</strong><br>Ask AI</span>
+  </button>
+
+  <script src="chat.js" defer></script>
+</body>
+</html>

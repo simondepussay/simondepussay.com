@@ -1,0 +1,32 @@
+/* Page Clean Work : complète kanji-otter.css et jlpt-etude.css (galerie d'écrans, liste d'API, budget) */
+.galerie { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 18px; }
+.galerie figure { margin: 0; }
+.galerie img { display: block; width: 100%; height: auto; border: 1px solid #e3e6ec; border-radius: 12px; background: #fff; }
+.galerie figcaption { margin-top: 6px; font-size: 0.82rem; line-height: 1.45; color: #444; }
+.galerie figcaption .en { display: block; }
+.galerie .large { grid-column: span 6; }
+.galerie .moitie { grid-column: span 3; }
+.galerie .tiers { grid-column: span 2; }
+.galerie .deux-tiers { grid-column: span 4; }
+@media (max-width: 560px) {
+  .galerie .moitie, .galerie .tiers { grid-column: span 3; }
+  .galerie .deux-tiers { grid-column: span 6; }
+}
+
+.apis { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.88rem; }
+.apis th, .apis td { padding: 9px 10px; border-bottom: 1px solid #e3e6ec; text-align: left; vertical-align: top; line-height: 1.55; }
+.apis th { font-size: 0.8rem; color: #555; border-bottom: 2px solid #1a5fd0; }
+.apis td:first-child { font-weight: 700; white-space: nowrap; }
+.apis .en { display: block; color: #555; }
+.apis .non td:first-child { color: #8a1c2c; }
+@media (max-width: 560px) {
+  .apis td:first-child { white-space: normal; }
+}
+
+.budget { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.budget li { padding: 14px 16px; border: 1px solid #e3e6ec; border-left: 4px solid #2b9a8b; border-radius: 10px; background: #fafbfd; font-size: 0.9rem; line-height: 1.6; }
+.budget b { display: block; margin-bottom: 2px; }
+.budget .en { display: block; margin-top: 4px; }
+@media (max-width: 560px) { .budget { grid-template-columns: 1fr; } }
+
+.slogan { font-size: 1.15rem; font-weight: 700; color: #1a5fd0; margin: 10px 0 0; }
