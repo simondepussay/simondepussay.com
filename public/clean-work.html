@@ -207,14 +207,23 @@
     <h2>4. 費用をおさえる工夫 <span class="en">Keeping costs down</span></h2>
     <p>変動する費用はAIだけです。それ以外は無料プランか、使った分だけの課金です。<br>
       <span class="en">The only cost that varies is the AI. Everything else runs on free plans or pay-per-use.</span></p>
-    <ul class="budget">
-      <li><b>AIの上限 <span class="en">AI caps</span></b>月¥3,000で自動停止。ES添削は1日10回・月30回、面接練習は1日3回・月20回。失敗した呼び出しは回数に数えません。<span class="en">A ¥3,000 monthly cap that stops AI calls; entry-sheet reviews limited to 10 a day and 30 a month, interviews to 3 a day and 20 a month. Failed calls are not counted.</span></li>
-      <li><b>無料・従量課金 <span class="en">Free and pay-per-use</span></b>Static Web Apps 無料プラン、Cosmos DB サーバーレス、gpt-5-mini。毎日のニュース要約は1日約0.55円。<span class="en">Static Web Apps free plan, serverless Cosmos DB, gpt-5-mini; the daily news digest costs about ¥0.55.</span></li>
-      <li><b>キャッシュ <span class="en">Caching</span></b>ファイルは1年キャッシュ、APIの読み取りは60秒、天気・祝日・企業データはサーバーで数時間〜1日。<span class="en">Static files cached for a year, API reads for 60 s, weather, holidays and company data on the server for hours to a day.</span></li>
-      <li><b>毎週の費用メール <span class="en">Weekly cost e-mail</span></b>月曜の朝、その週のAIの費用と残りの予算が届きます。ログは1日0.1 GBまで。<span class="en">Every Monday morning, the week's AI cost and the remaining budget arrive by e-mail; logs are capped at 0.1 GB a day.</span></li>
-      <li><b>通知の分担 <span class="en">Splitting the reminders</span></b>サーバーの通知は1日1回（朝8時）。面接1時間前の通知は、15分ごとのジョブが無料枠を超えるため、iPhoneが自分で予約します。<span class="en">Server notifications run once a day (8:00). The reminder an hour before an interview is scheduled by the iPhone itself, because a job every 15 minutes would exceed the free CI quota.</span></li>
-      <li><b>作らなかったもの <span class="en">What I didn't build</span></b>常時起動のサーバー、有料の通知サービス、有料の求人API。<span class="en">No always-on server, no paid push service, no paid job-listing API.</span></li>
-    </ul>
+    <div class="recu">
+      <p class="recu-tete"><strong>CLEAN WORK</strong>費用の明細 <span class="en">Cost receipt</span></p>
+      <ul>
+        <li><span class="poste">ホスティング・API<span class="en">Hosting + API · Static Web Apps, free plan</span></span><span class="prix">¥0</span></li>
+        <li><span class="poste">データベース<span class="en">Database · Cosmos DB serverless, pay-per-use</span></span><span class="prix">従量</span></li>
+        <li><span class="poste">プッシュ通知<span class="en">Push · straight to Apple (APNs), no paid service</span></span><span class="prix">¥0</span></li>
+        <li><span class="poste">面接1時間前の通知<span class="en">1-hour reminder · scheduled by the iPhone itself; a job every 15 min would exceed the free CI quota</span></span><span class="prix">¥0</span></li>
+        <li><span class="poste">毎日のニュース要約<span class="en">Daily news digest · gpt-5-mini</span></span><span class="prix">¥0.55<small>/日</small></span></li>
+        <li><span class="poste">ES添削・面接練習<span class="en">Entry-sheet review 10/day · 30/month — interviews 3/day · 20/month; failed calls not counted</span></span><span class="prix">上限内</span></li>
+        <li><span class="poste">キャッシュ<span class="en">Caching · files 1 year, API reads 60 s, open data hours to a day</span></span><span class="prix">−呼出</span></li>
+        <li><span class="poste">ログ<span class="en">Logs · Application Insights</span></span><span class="prix">0.1 GB<small>/日</small></span></li>
+      </ul>
+      <p class="recu-total"><span>固定費 <span class="en">Fixed costs</span></span><strong>¥0</strong></p>
+      <p class="recu-total ia"><span>AIの上限 <span class="en">AI cap, per month</span></span><strong>¥3,000</strong></p>
+      <p class="tampon" aria-hidden="true">自動停止<br><small>AUTO STOP</small></p>
+      <p class="recu-pied">毎週月曜の朝、費用メールが届きます<br><span class="en">A cost e-mail arrives every Monday morning</span></p>
+    </div>
   </section>
 
   <!-- 5. Tests -->
@@ -237,32 +246,20 @@
   <!-- 6. Beta -->
   <section>
     <h2>6. iPhoneアプリのβテスト <span class="en">The iPhone beta</span></h2>
-    <ol class="flux">
-      <li><b>申し込み <span class="en">Sign up</span></b>サイトのどのページの下にもリンク。Appleアカウントのメールと端末を送るだけ（アカウント不要）。<span class="en">A link at the bottom of every page; send your Apple Account e-mail and device, no account needed.</span></li>
-      <li><b>受け取り <span class="en">Collect</span></b>毎朝9時、新しい申し込みがGitHubのissueにまとまり、メールで届きます。<span class="en">Every morning at 9, new requests are listed in a GitHub issue that arrives by e-mail.</span></li>
-      <li><b>招待 <span class="en">Invite</span></b>App Store Connectの外部テスターに追加すると、AppleがTestFlightの招待を送ります。<span class="en">Adding them as external testers in App Store Connect makes Apple send the TestFlight invitation.</span></li>
-      <li><b>感想 <span class="en">Feedback</span></b>アプリでスクリーンショットを撮り、TestFlightから送信。<span class="en">Testers take a screenshot in the app and send it through TestFlight.</span></li>
+    <ol class="rosen">
+      <li><span class="eki">申し込み<small>Sign up</small></span>
+        <p>サイトのどのページの下にもリンク。Appleアカウントのメールと端末を送るだけ（アカウント不要）。<span class="en">A link at the bottom of every page; send your Apple Account e-mail and device, no account needed.</span></p></li>
+      <li><span class="eki">受け取り<small>Collect</small></span>
+        <p>毎朝9時、新しい申し込みがGitHubのissueにまとまり、メールで届きます。<span class="en">Every morning at 9, new requests are listed in a GitHub issue that arrives by e-mail.</span></p></li>
+      <li><span class="eki">招待<small>Invite</small></span>
+        <p>App Store Connectの外部テスターに追加すると、AppleがTestFlightの招待を送ります。<span class="en">Adding them as external testers in App Store Connect makes Apple send the TestFlight invitation.</span></p></li>
+      <li><span class="eki">感想<small>Feedback</small></span>
+        <p>アプリでスクリーンショットを撮り、TestFlightから送信。<span class="en">Testers take a screenshot in the app and send it through TestFlight.</span></p></li>
     </ol>
     <p class="note">申し込みフォームは同意のチェックが必須、同じメールは1回だけ、1つの接続から1日5回まで、ロボット用の見えない入力欄つき。メールは180日後に自動で削除されます。<br>
       <span class="en">The form requires consent, keeps one request per address, allows 5 a day per connection and has an invisible field that catches bots. Addresses are deleted automatically after 180 days.</span></p>
   </section>
 
-  <!-- 7. How it was built -->
-  <section>
-    <h2>7. 作り方と学んだこと <span class="en">How it was built, what I learned</span></h2>
-    <p>Claude Code（AIのコーディングエージェント）と一緒に作りました。何を作るか、名前とスローガン、デザイン、使うAPI、費用の上限、βテストの進め方を決め、毎回動作を確認したのは私です。紹介動画も、AIで作った場面と声に、構成・字幕・音量の調整を加えて仕上げました。学んだのは、機能を増やすことより、迷わせない画面と、費用と個人情報を守る仕組みを先に決めることの大切さです。<br>
-      <span class="en">Built with Claude Code, an AI coding agent. I decided what to build, the name and slogan, the design, which APIs to use, the cost limits and how the beta runs, and I checked every change. The launch video combines AI-generated scenes and voice with my own structure, subtitles and sound mix. The main lesson: before adding features, decide on calm screens and on the safeguards for cost and personal data.</span></p>
-    <div class="galerie">
-      <figure class="tiers">
-        <img src="clean-work/pub-isogashikute.jpg" width="540" height="960" alt="Frame from the launch video: the student at her part-time job with the caption 忙しくて、忙しくて、忙しくて、">
-        <figcaption>紹介動画「忙しくて、」<span class="en">Launch video: “so busy…”</span></figcaption>
-      </figure>
-      <figure class="deux-tiers">
-        <img src="clean-work/web-beta.jpg" width="1280" height="860" alt="Beta sign-up page: steps to join with TestFlight on the left, form on the right">
-        <figcaption>βテストの申し込みページ <span class="en">Beta sign-up page</span></figcaption>
-      </figure>
-    </div>
-  </section>
 
   <footer class="pied">
     <a href="./">← ポートフォリオに戻る / Back to portfolio</a>
