@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clean Work — 設計と運用 / How it's built and run | Simon Depussay</title>
-  <meta name="description" content="就活を一か所にまとめるアプリ Clean Work（Web・iPhone・iPad）の設計と運用。How the Clean Work job-hunting app is built: Azure Static Web Apps, Azure Functions, Cosmos DB, Azure OpenAI, SwiftUI, open government data, 411 automated tests, a TestFlight beta and a ¥3,000 monthly AI budget.">
+  <meta name="description" content="就活を一か所にまとめるアプリ Clean Work（Web・iPhone・iPad）の設計と運用。How the Clean Work job-hunting app is built: Azure Static Web Apps, Azure Functions, Cosmos DB, Azure OpenAI, SwiftUI, open government data, 503 automated tests, a TestFlight beta and a ¥3,000 monthly AI budget.">
   <link rel="canonical" href="https://simondepussay.com/clean-work.html">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://simondepussay.com/clean-work.html">
   <meta property="og:site_name" content="Simon Depussay">
   <meta property="og:title" content="Clean Work — 迷わない毎日へ。">
-  <meta property="og:description" content="日本人も外国人も使える就活アプリ。A job-hunting app for Japanese and international students: web, iPhone and iPad, AI feedback, open data, 411 automated tests.">
+  <meta property="og:description" content="日本人も外国人も使える就活アプリ。A job-hunting app for Japanese and international students: web, iPhone and iPad, AI feedback, open data, 503 automated tests.">
   <meta property="og:locale" content="ja_JP">
   <meta property="og:locale:alternate" content="en_US">
   <meta property="og:image" content="https://simondepussay.com/clean-work/web-accueil.jpg">
@@ -32,7 +32,7 @@
   "sameAs": ["https://cleanwork.simondepussay.com"],
   "inLanguage": ["ja", "en", "fr"],
   "author": { "@type": "Person", "name": "Simon Depussay", "url": "https://simondepussay.com/" },
-  "description": "Job-hunting app for Japanese and international students in Japan: applications and deadlines, AI entry-sheet review, AI mock interviews, résumé PDFs, open government data on companies. Web (React), iPhone and iPad (SwiftUI), Azure Static Web Apps, Azure Functions, Cosmos DB, Azure OpenAI, 411 automated tests."
+  "description": "Job-hunting app for Japanese and international students in Japan: applications and deadlines, AI entry-sheet review, AI mock interviews, résumé PDFs, open government data on companies. Web (React), iPhone and iPad (SwiftUI), Azure Static Web Apps, Azure Functions, Cosmos DB, Azure OpenAI, 503 automated tests."
 }
   </script>
 </head>
@@ -72,6 +72,39 @@
       <figcaption>紹介動画（面接1時間前の通知）<span class="en">From the launch video: the notification one hour before the interview</span></figcaption>
     </figure>
   </div>
+
+  <!-- Nouveautés -->
+  <section>
+    <h2>最近の更新 <span class="en">What's new (October 2026)</span></h2>
+    <p>就活は書類と面接だけではありません。気持ちの波にも付き合えるように「こころ」のタブを作り直し、履歴書は新卒用・アルバイト用の様式を加えました。<br>
+      <span class="en">A job hunt is not only paperwork and interviews. The Mind tab was rebuilt to help with the ups and downs, and the résumé now comes in new-graduate and part-time versions.</span></p>
+    <div class="galerie">
+      <figure class="large">
+        <img src="clean-work/web-kokoro.jpg" width="1600" height="1075" loading="lazy" alt="Mind tab: the question “how is your inner weather today?” over a sunset sky with a red sun, clouds and a seigaiha wave pattern, then a letter-style note">
+        <figcaption>こころ：今日の天気を選ぶと空が変わります。雨の日が続くと、相談先をそっと案内。<span class="en">Mind: picking today's weather changes the sky. After several rainy days, the app gently points to free counselling.</span></figcaption>
+      </figure>
+      <figure class="deux-tiers">
+        <img src="clean-work/web-journal-livre.jpg" width="1600" height="1075" loading="lazy" alt="The journal opened as a book on a dark background, a page caught halfway through turning in 3D">
+        <figcaption>日記を本のように読む：ページが3Dでめくれます（矢印・キーボード・スワイプ）。<span class="en">Reading the journal as a book: pages turn in 3D (arrows, keyboard or swipe).</span></figcaption>
+      </figure>
+      <figure class="tiers">
+        <img src="clean-work/web-journal.jpg" width="800" height="1100" loading="lazy" alt="The “take a break” card above the journal: today's lined page and the previous days">
+        <figcaption>ひと休み（1分の呼吸）と日記。AIには送りません。<span class="en">A one-minute breathing break, and the journal, never sent to the AI.</span></figcaption>
+      </figure>
+      <figure class="large">
+        <img src="clean-work/cv-shinsotsu.jpg" width="1600" height="1130" loading="lazy" alt="Two A4 pages of a generated new-graduate résumé for a fictional student: identity, education, licences, then large boxes for motivation, student achievements and self-PR">
+        <figcaption>履歴書PDF（新卒用）：プロフィールから自動で作成。標準・新卒用・アルバイト用の3様式。※架空の人物です。<span class="en">Résumé PDF, new-graduate version, generated from the profile; standard, new-graduate and part-time layouts. The person is fictional.</span></figcaption>
+      </figure>
+      <figure class="moitie">
+        <img src="clean-work/web-calendrier.jpg" width="1600" height="950" loading="lazy" alt="Calendar for November with a large red “11”, the traditional month name 霜月, interviews, deadlines, goals and holidays">
+        <figcaption>カレンダー：月の和名（霜月）と祝日。<span class="en">Calendar with the traditional month name (霜月) and public holidays.</span></figcaption>
+      </figure>
+      <figure class="moitie">
+        <img src="clean-work/web-info.jpg" width="1600" height="1075" loading="lazy" alt="Info tab: the latest headlines from NHK, JETRO and The Japan Times, with a link to the Ministry of Labour's announcements">
+        <figcaption>情報：毎朝AIが5件（NHK・JETRO・Japan Times）を選び、最大5ページで古いものは消えます。<span class="en">Info: each morning the AI picks 5 items (NHK, JETRO, The Japan Times); at most 5 pages, older news is dropped.</span></figcaption>
+      </figure>
+    </div>
+  </section>
 
   <!-- 1. Architecture -->
   <section>
@@ -132,8 +165,8 @@
           <text x="135" y="494" text-anchor="middle">Open data</text>
           <text x="135" y="514" text-anchor="middle" class="petit">gBizINFO (METI) · 国土地理院</text>
           <text x="135" y="532" text-anchor="middle" class="petit">Open-Meteo · holidays-jp</text>
-          <text x="135" y="550" text-anchor="middle" class="petit">zipcloud · RSS (厚労省, NHK,</text>
-          <text x="135" y="568" text-anchor="middle" class="petit">JETRO, Japan Times)</text>
+          <text x="135" y="550" text-anchor="middle" class="petit">zipcloud · RSS (NHK, JETRO,</text>
+          <text x="135" y="568" text-anchor="middle" class="petit">The Japan Times)</text>
         </g>
         <path d="M300,330 C270,360 270,380 252,400" class="lien pointille" marker-end="url(#f)"/>
         <path d="M300,340 C280,420 270,470 252,500" class="lien pointille" marker-end="url(#f)"/>
@@ -173,7 +206,7 @@
         <tr><td>gBizINFO（経済産業省）</td><td>応募先の公式データ：くるみん・えるぼし・ユースエールなどの国の認定と、残業時間・平均勤続年数・女性管理職・男性の育休。学生が企業を選ぶ判断材料になります。<span class="en">Official company data: government labels (Kurumin, Eruboshi, Youth Yell…) and workplace figures (overtime, tenure, women managers, paternity leave), so students can judge an employer.</span></td></tr>
         <tr><td>国土地理院 + Open-Meteo</td><td>面接会場（なければ本社、自宅）の住所を位置に変換し、当日の天気を表示。面接1時間前の通知に「傘を忘れずに」。<span class="en">The interview venue (else the head office, else home) is turned into coordinates for that day's forecast; the reminder an hour before adds “take an umbrella”.</span></td></tr>
         <tr><td>holidays-jp · zipcloud</td><td>カレンダーの祝日と、郵便番号から住所の自動入力（履歴書）。<span class="en">Public holidays in the calendar, and the address filled in from the postal code (résumé).</span></td></tr>
-        <tr><td>RSS</td><td>厚生労働省・NHK・JETRO・Japan Times。AIが毎日5件を選び、3言語で要約。<span class="en">Ministry of Labour, NHK, JETRO and The Japan Times; the AI picks 5 items a day and summarises them in three languages.</span></td></tr>
+        <tr><td>RSS</td><td>NHK・JETRO・Japan Times。AIが毎日5件（NHK 2・JETRO 2・Japan Times 1）を選び、3言語で要約。制度の変更は厚生労働省の新着情報へのリンクで。<span class="en">NHK, JETRO and The Japan Times; the AI picks 5 items a day (2 NHK, 2 JETRO, 1 Japan Times) and summarises them in three languages. Rule changes link to the Ministry of Labour's announcements page.</span></td></tr>
       </tbody>
     </table>
   </section>
@@ -234,9 +267,9 @@
     <table class="tests">
       <thead><tr><th>分類 <span class="en">Area</span></th><th>数 <span class="en">Count</span></th><th>例 <span class="en">Examples</span></th></tr></thead>
       <tbody>
-        <tr><td>API</td><td>211</td><td><span class="en">users can't read each other's data, AI limits and budget, quotes checked against the text, reminders sent once a day even if the job reruns, account deletion, open-data parsing, beta sign-up anti-spam, a full user journey</span></td></tr>
-        <tr><td>Web</td><td>120</td><td><span class="en">every screen in one language at a time, calendar and quick notes, application board, profile and CV import, holidays and weather, sign-in errors, no blank page after a deploy</span></td></tr>
-        <tr><td>iOS</td><td>80</td><td><span class="en">reminders (the day before, the same day, one hour before an interview with weather advice), push registration, API client, profile, CV import, agenda</span></td></tr>
+        <tr><td>API</td><td>253</td><td><span class="en">users can't read each other's data, AI limits and budget, quotes checked against the text, reminders sent once a day even if the job reruns, account deletion, open-data parsing, beta sign-up anti-spam, a full user journey</span></td></tr>
+        <tr><td>Web</td><td>159</td><td><span class="en">every screen in one language at a time, calendar and quick notes, application board, profile and CV import, holidays and weather, sign-in errors, no blank page after a deploy</span></td></tr>
+        <tr><td>iOS</td><td>91</td><td><span class="en">reminders (the day before, the same day, one hour before an interview with weather advice), push registration, API client, profile, CV import, agenda</span></td></tr>
       </tbody>
     </table>
     <p class="note">AIはテストでは偽物に置き換え、本物のAIは手で確認します（CVの読み込みなど）。画面の見た目と実機での通しテストは、確認リストを作って手作業で行っています。<br>
