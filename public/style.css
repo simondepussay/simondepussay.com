@@ -141,6 +141,8 @@ html { scroll-behavior: smooth; }
 
 .sous-titre { font-size: 1rem; margin: 28px 0 10px; }
 .sous-titre .en { font-weight: normal; margin-left: 4px; }
+/* Un prix se distingue d’une ligne de parcours : trait doré plutôt que bleu. */
+.recompenses > li { border-left-color: #b8860b; }
 /* Bénévolat : un plan de ligne (路線図), un pays par gare — même dessin que la page Clean Work */
 .benevolat { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 18px; position: relative; }
 .benevolat::before { content: ""; position: absolute; left: 16%; right: 16%; top: 13px; height: 8px; border-radius: 4px; background: #1a5fd0; }

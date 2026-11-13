@@ -22,6 +22,10 @@ The website also has an AI assistant that answers questions about Simon.
 - 2022–2026: Work, languages and personal projects. Internship at a Japanese company exporting to France; assistant roles (France–Japan administration, support for scientific articles); app development; website management; educational materials for children, in a team. One year in Australia to improve English; Japanese studies up to JLPT N2.
 - 2018–2022: University of Geneva (Switzerland), Bachelor in International Relations (political science track), with an exchange at Keio University (Japan).
 
+## Award
+
+- September 2026: Originality Award (独創力賞) at HAL Tokyo's internal "Beautiful Web Design" competition (美しいWEBデザイン学内コンペ). Awarded for an artist portfolio site built in plain HTML and CSS; the rules required the code and the images to be made without AI.
+
 ## Volunteering
 
 - China: teaching English at a school.
