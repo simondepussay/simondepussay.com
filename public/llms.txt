@@ -24,7 +24,7 @@ The website also has an AI assistant that answers questions about Simon.
 
 ## Award
 
-- September 2026: Originality Award (独創力賞) at HAL Tokyo's internal "Beautiful Web Design" competition (美しいWEBデザイン学内コンペ). Awarded for an artist portfolio site built in plain HTML and CSS; the rules required the code and the images to be made without AI.
+- September 2026: Originality Award (独創力賞) at HAL's internal "Beautiful Web Design" competition (美しいWEBデザイン学内コンペ), held across the three HAL campuses (Tokyo, Osaka, Nagoya). Awarded for an artist portfolio site built in plain HTML and CSS; the rules required the code and the images to be made without AI.
 
 ## Volunteering
 
